@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users,
   FileText,
@@ -9,17 +9,11 @@ import {
   Tag,
   Plus,
   Search,
-  TrendingUp,
   ArrowUpRight,
+  ShieldCheck,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const stats = [
-  { label: "Total Users", value: "2,341", change: "+12%", icon: Users },
-  { label: "Prompts Created", value: "8,912", change: "+23%", icon: FileText },
-  { label: "Featured Prompts", value: "24", change: "+2", icon: Star },
-  { label: "Content Posts", value: "16", change: "+3", icon: FileText },
-];
+import { useAdminStats } from "@/hooks/useAdminStats";
 
 const recentUsers = [
   { id: "1", name: "John Doe", email: "john@example.com", plan: "Pro", createdAt: "2 hours ago" },
@@ -34,6 +28,15 @@ const featuredPrompts = [
 ];
 
 export default function AdminPage() {
+  const { data: stats, isLoading } = useAdminStats();
+
+  const statCards = [
+    { label: "Total Users", value: stats?.totalUsers ?? 0, icon: Users },
+    { label: "Content Posts", value: stats?.totalPosts ?? 0, icon: FileText },
+    { label: "Categories", value: stats?.totalCategories ?? 0, icon: Tag },
+    { label: "Admins", value: stats?.totalAdmins ?? 0, icon: ShieldCheck },
+  ];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -52,18 +55,18 @@ export default function AdminPage() {
 
       {/* Stats */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <div key={stat.label} className="p-6 rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between mb-4">
               <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
                 <stat.icon className="h-5 w-5 text-muted-foreground" />
               </div>
-              <span className="text-sm text-emerald-500 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                {stat.change}
-              </span>
             </div>
-            <p className="text-2xl font-bold">{stat.value}</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16 mb-1" />
+            ) : (
+              <p className="text-2xl font-bold">{stat.value.toLocaleString()}</p>
+            )}
             <p className="text-sm text-muted-foreground">{stat.label}</p>
           </div>
         ))}
