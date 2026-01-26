@@ -16,6 +16,7 @@ import LandingPage from "@/pages/LandingPage";
 import PricingPage from "@/pages/PricingPage";
 import AuthPage from "@/pages/AuthPage";
 import LearnPage from "@/pages/LearnPage";
+import LearnPostPage from "@/pages/LearnPostPage";
 import PublicLibraryPage from "@/pages/PublicLibraryPage";
 
 // App Pages
@@ -45,6 +46,7 @@ const App = () => {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/learn" element={<LearnPage />} />
+                <Route path="/learn/:slug" element={<LearnPostPage />} />
                 <Route path="/library" element={<PublicLibraryPage />} />
               </Route>
 
