@@ -1,86 +1,39 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Search,
-  BookOpen,
   Clock,
-  Tag,
   ArrowRight,
   Mail,
 } from "lucide-react";
+import { useLearnPosts, useLearnCategories } from "@/hooks/useLearnPosts";
 
-const articles = [
-  {
-    id: "race-framework",
-    title: "The RACE Framework for Prompt Engineering",
-    description: "Learn the Role, Action, Context, Examples framework for crafting effective prompts.",
-    category: "Framework",
-    readTime: "5 min",
-    tags: ["framework", "best-practices"],
-  },
-  {
-    id: "system-prompts",
-    title: "Writing Effective System Prompts",
-    description: "Master the art of setting context and constraints with system messages.",
-    category: "Guide",
-    readTime: "8 min",
-    tags: ["system-prompt", "fundamentals"],
-  },
-  {
-    id: "output-schemas",
-    title: "Designing Output Schemas",
-    description: "Structure your AI outputs with JSON schemas and format instructions.",
-    category: "Tutorial",
-    readTime: "6 min",
-    tags: ["json", "structured-output"],
-  },
-  {
-    id: "few-shot-learning",
-    title: "Few-Shot Learning in Practice",
-    description: "Use examples to dramatically improve your prompt's performance.",
-    category: "Technique",
-    readTime: "7 min",
-    tags: ["examples", "technique"],
-  },
-  {
-    id: "chain-of-thought",
-    title: "Chain of Thought Prompting",
-    description: "Guide the AI through step-by-step reasoning for complex tasks.",
-    category: "Technique",
-    readTime: "6 min",
-    tags: ["reasoning", "advanced"],
-  },
-  {
-    id: "evaluation-rubrics",
-    title: "Creating Evaluation Rubrics",
-    description: "Build consistent criteria for evaluating prompt outputs.",
-    category: "Quality",
-    readTime: "5 min",
-    tags: ["evaluation", "testing"],
-  },
-  {
-    id: "prompt-injection",
-    title: "Preventing Prompt Injection",
-    description: "Security best practices for production prompts.",
-    category: "Security",
-    readTime: "8 min",
-    tags: ["security", "production"],
-  },
-  {
-    id: "model-comparison",
-    title: "Choosing the Right Model",
-    description: "Compare GPT-4, Claude, and other models for your use case.",
-    category: "Guide",
-    readTime: "10 min",
-    tags: ["models", "comparison"],
-  },
-];
-
-const categories = ["All", "Framework", "Guide", "Tutorial", "Technique", "Quality", "Security"];
+function estimateReadTime(markdown: string): number {
+  const words = markdown.split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
 
 export default function LearnPage() {
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: categories, isLoading: categoriesLoading } = useLearnCategories();
+  const { data: posts, isLoading: postsLoading } = useLearnPosts(selectedCategory);
+
+  const filteredPosts = posts?.filter((post) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      post.title.toLowerCase().includes(query) ||
+      post.summary?.toLowerCase().includes(query) ||
+      post.tags?.some((tag) => tag.toLowerCase().includes(query))
+    );
+  });
+
   return (
     <div className="py-20">
       <div className="container">
@@ -98,51 +51,93 @@ export default function LearnPage() {
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search articles..." className="pl-10" />
+              <Input
+                placeholder="Search articles..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={category === "All" ? "default" : "outline"}
-                size="sm"
-              >
-                {category}
-              </Button>
-            ))}
+            <Button
+              variant={selectedCategory === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory("all")}
+            >
+              All
+            </Button>
+            {categoriesLoading ? (
+              <>
+                <Skeleton className="h-8 w-20" />
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-8 w-20" />
+              </>
+            ) : (
+              categories?.map((category) => (
+                <Button
+                  key={category.slug}
+                  variant={selectedCategory === category.slug ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.slug)}
+                >
+                  {category.name}
+                </Button>
+              ))
+            )}
           </div>
         </div>
 
         {/* Articles Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {articles.map((article) => (
-            <Link
-              key={article.id}
-              to={`/learn/${article.id}`}
-              className="group p-6 rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-200"
-            >
-              <Badge variant="muted" className="mb-3">
-                {article.category}
-              </Badge>
-              <h3 className="text-lg font-semibold mb-2 group-hover:text-amber-600 transition-colors">
-                {article.title}
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                {article.description}
-              </p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {article.readTime} read
-                </span>
-                <span className="flex items-center gap-1 group-hover:text-amber-600 transition-colors">
-                  Read more
-                  <ArrowRight className="h-3 w-3" />
-                </span>
+          {postsLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="p-6 rounded-xl border border-border bg-card">
+                <Skeleton className="h-5 w-20 mb-3" />
+                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-3/4 mb-4" />
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
               </div>
-            </Link>
-          ))}
+            ))
+          ) : filteredPosts?.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-muted-foreground">No articles found matching your criteria.</p>
+            </div>
+          ) : (
+            filteredPosts?.map((post) => (
+              <Link
+                key={post.id}
+                to={`/learn/${post.slug}`}
+                className="group p-6 rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-200"
+              >
+                {post.category && (
+                  <Badge variant="secondary" className="mb-3">
+                    {post.category.name}
+                  </Badge>
+                )}
+                <h3 className="text-lg font-semibold mb-2 group-hover:text-amber-600 transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  {post.summary}
+                </p>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {estimateReadTime(post.body_markdown)} min read
+                  </span>
+                  <span className="flex items-center gap-1 group-hover:text-amber-600 transition-colors">
+                    Read more
+                    <ArrowRight className="h-3 w-3" />
+                  </span>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
 
         {/* Newsletter */}

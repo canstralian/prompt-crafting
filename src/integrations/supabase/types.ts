@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      learn_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      learn_posts: {
+        Row: {
+          body_markdown: string
+          category_id: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          slug: string
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_markdown: string
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          slug: string
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_markdown?: string
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          slug?: string
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learn_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "learn_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
