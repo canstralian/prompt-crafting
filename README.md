@@ -4,7 +4,7 @@ A professional web application for prompt engineering and management. Design, te
 
 ## Overview
 
-Builder-Prompt-Engine (PromptCrafting) treats prompts as first-class engineering artifacts. Whether you're a solo builder experimenting with LLMs or an enterprise team managing production prompts at scale, this platform provides the tools to create reliable, tested, and version-controlled prompts.
+Builder-Prompt-Engine treats prompts as first-class engineering artifacts. Whether you're a solo builder experimenting with LLMs or an enterprise team managing production prompts at scale, this platform provides the tools to create reliable, tested, and version-controlled prompts.
 
 ### Key Features
 
