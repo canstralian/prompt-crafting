@@ -50,7 +50,7 @@ Builder-Prompt-Engine (PromptCrafting) treats prompts as first-class engineering
 
 1. **Clone the repository**
    ```sh
-   git clone https://github.com/canstralian/builder-prompt-engine.git
+   git clone https://github.com/<your-github-username>/builder-prompt-engine.git
    cd builder-prompt-engine
    ```
 
