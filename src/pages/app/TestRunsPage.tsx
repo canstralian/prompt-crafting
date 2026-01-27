@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -50,6 +50,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 export default function TestRunsPage() {
   const { testRuns, isLoading, stats, refetch } = useTestRuns();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
@@ -108,7 +109,8 @@ export default function TestRunsPage() {
           {testRuns.map((run) => (
             <div
               key={run.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:shadow-md transition-all group"
+              onClick={() => navigate(`/app/tests/${run.id}`)}
+              className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:shadow-md transition-all group cursor-pointer"
             >
               <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
