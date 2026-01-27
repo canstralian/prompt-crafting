@@ -13,6 +13,8 @@ import {
   Code2,
   BookOpen,
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileHome from "@/components/mobile/MobileHome";
 
 const features = [
   {
@@ -72,6 +74,13 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
+  const isMobile = useIsMobile();
+
+  // Render mobile-optimized wireframe on mobile devices
+  if (isMobile) {
+    return <MobileHome />;
+  }
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
