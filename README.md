@@ -101,10 +101,16 @@ src/
 │   ├── PricingPage.tsx       # Pricing tiers
 │   ├── AuthPage.tsx          # Authentication
 │   ├── LearnPage.tsx         # Learning resources
+│   ├── LearnPostPage.tsx     # Individual learn post view
+│   ├── PublicLibraryPage.tsx # Public prompt library
+│   ├── NotFound.tsx          # 404 page
 │   └── app/                  # Protected application pages
 │       ├── DashboardPage.tsx
 │       ├── PromptBuilderPage.tsx
 │       ├── PromptLibraryPage.tsx
+│       ├── BillingPage.tsx
+│       ├── TestRunsPage.tsx
+│       ├── WorkspacePage.tsx
 │       └── AdminPage.tsx
 ├── components/
 │   ├── ui/                   # shadcn/ui components
