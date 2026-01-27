@@ -26,6 +26,7 @@ import DashboardPage from "@/pages/app/DashboardPage";
 import PromptLibraryPage from "@/pages/app/PromptLibraryPage";
 import PromptBuilderPage from "@/pages/app/PromptBuilderPage";
 import TestRunsPage from "@/pages/app/TestRunsPage";
+import TestRunDetailPage from "@/pages/app/TestRunDetailPage";
 import WorkspacePage from "@/pages/app/WorkspacePage";
 import BillingPage from "@/pages/app/BillingPage";
 import AdminPage from "@/pages/app/AdminPage";
@@ -70,6 +71,7 @@ const App = () => {
                 <Route path="prompts/new" element={<PromptBuilderPage />} />
                 <Route path="prompts/:id" element={<PromptLibraryPage />} />
                 <Route path="tests" element={<TestRunsPage />} />
+                <Route path="tests/:id" element={<TestRunDetailPage />} />
                 <Route path="workspace" element={<WorkspacePage />} />
                 <Route path="billing" element={<BillingPage />} />
                 <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
