@@ -25,7 +25,7 @@ export function Logo({ variant = "default", size = "md", showText = true }: Logo
     <Link to="/" className="flex items-center gap-2 group">
       <div
         className={cn(
-          "flex items-center justify-center rounded-lg bg-accent-gradient shadow-glow transition-transform group-hover:scale-105",
+          "flex items-center justify-center rounded-sm bg-accent shadow-glow transition-transform group-hover:scale-105",
           sizeClasses[size]
         )}
       >
