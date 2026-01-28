@@ -30,11 +30,11 @@ type SortOption = "date-desc" | "date-asc" | "score-desc" | "score-asc";
 const StatusIcon = ({ status }: { status: string }) => {
   switch (status) {
     case "passed":
-      return <CheckCircle className="h-4 w-4 text-emerald-500" />;
+      return <CheckCircle className="h-4 w-4 text-success" />;
     case "failed":
-      return <XCircle className="h-4 w-4 text-red-500" />;
+      return <XCircle className="h-4 w-4 text-destructive" />;
     case "warning":
-      return <AlertCircle className="h-4 w-4 text-amber-500" />;
+      return <AlertCircle className="h-4 w-4 text-accent" />;
     case "pending":
       return <Clock className="h-4 w-4 text-muted-foreground" />;
     default:
@@ -171,7 +171,7 @@ export default function TestRunsPage() {
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-popover">
             <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="passed">Passed</SelectItem>
             <SelectItem value="failed">Failed</SelectItem>
@@ -185,7 +185,7 @@ export default function TestRunsPage() {
             <ArrowUpDown className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-popover">
             <SelectItem value="date-desc">Newest First</SelectItem>
             <SelectItem value="date-asc">Oldest First</SelectItem>
             <SelectItem value="score-desc">Highest Score</SelectItem>
@@ -202,21 +202,21 @@ export default function TestRunsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-lg border border-border bg-card">
+        <div className="p-4 border border-border bg-card shadow-xs">
           <p className="text-2xl font-bold">{stats.total}</p>
           <p className="text-sm text-muted-foreground">Total runs</p>
         </div>
-        <div className="p-4 rounded-lg border border-border bg-card">
-          <p className="text-2xl font-bold text-emerald-500">
+        <div className="p-4 border border-border bg-card shadow-xs">
+          <p className="text-2xl font-bold text-success">
             {stats.total > 0 ? `${stats.passRate}%` : "—"}
           </p>
           <p className="text-sm text-muted-foreground">Pass rate</p>
         </div>
-        <div className="p-4 rounded-lg border border-border bg-card">
+        <div className="p-4 border border-border bg-card shadow-xs">
           <p className="text-2xl font-bold">{stats.avgScore}</p>
           <p className="text-sm text-muted-foreground">Avg. score</p>
         </div>
-        <div className="p-4 rounded-lg border border-border bg-card">
+        <div className="p-4 border border-border bg-card shadow-xs">
           <p className="text-2xl font-bold">{stats.thisWeek}</p>
           <p className="text-sm text-muted-foreground">This week</p>
         </div>
@@ -236,11 +236,11 @@ export default function TestRunsPage() {
             <div
               key={run.id}
               onClick={() => navigate(`/app/tests/${run.id}`)}
-              className="flex items-center justify-between p-4 rounded-lg border border-border bg-card hover:shadow-md transition-all group cursor-pointer"
+              className="flex items-center justify-between p-4 border border-border bg-card hover:shadow-sm transition-all group cursor-pointer"
             >
               <div className="flex items-center gap-4 flex-1 min-w-0">
-                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  <FlaskConical className="h-5 w-5 text-muted-foreground" />
+                <div className="h-10 w-10 bg-secondary flex items-center justify-center shrink-0">
+                  <FlaskConical className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -275,7 +275,7 @@ export default function TestRunsPage() {
       {/* Empty State - No runs at all */}
       {!isLoading && testRuns.length === 0 && (
         <div className="text-center py-16 px-4">
-          <div className="inline-flex h-16 w-16 rounded-full bg-muted items-center justify-center mb-4">
+          <div className="inline-flex h-16 w-16 bg-muted items-center justify-center mb-4">
             <FlaskConical className="h-8 w-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-semibold mb-2">No test runs yet</h3>
