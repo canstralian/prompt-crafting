@@ -111,8 +111,8 @@ export default function PromptBuilderPage() {
           </Link>
         </Button>
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
-            <Sparkles className="h-6 w-6 text-amber-600" />
+          <div className="h-12 w-12 bg-primary/10 flex items-center justify-center">
+            <Sparkles className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">Prompt Builder</h1>
@@ -131,11 +131,11 @@ export default function PromptBuilderPage() {
               <button
                 onClick={() => setCurrentStep(step.id)}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg transition-all",
+                  "flex items-center gap-2 px-3 py-2 transition-all",
                   currentStep === step.id
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : currentStep > step.id
-                    ? "bg-emerald-100 text-emerald-700"
+                    ? "bg-success/10 text-success"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
@@ -152,7 +152,7 @@ export default function PromptBuilderPage() {
                 <div
                   className={cn(
                     "h-0.5 w-8 mx-2 hidden sm:block",
-                    currentStep > step.id ? "bg-emerald-500" : "bg-muted"
+                    currentStep > step.id ? "bg-success" : "bg-muted"
                   )}
                 />
               )}
@@ -162,7 +162,7 @@ export default function PromptBuilderPage() {
       </div>
 
       {/* Form Content */}
-      <div className="p-8 rounded-2xl border border-border bg-card">
+      <div className="p-8 border border-border bg-card shadow-sm">
         {/* Step 1: Goal */}
         {currentStep === 1 && (
           <div className="space-y-6">
@@ -263,7 +263,7 @@ export default function PromptBuilderPage() {
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-popover">
                         <SelectItem value="string">String</SelectItem>
                         <SelectItem value="number">Number</SelectItem>
                         <SelectItem value="list">List</SelectItem>
@@ -347,7 +347,7 @@ export default function PromptBuilderPage() {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover">
                     {outputFormats.map((format) => (
                       <SelectItem key={format.value} value={format.value}>
                         {format.label}
@@ -382,11 +382,11 @@ export default function PromptBuilderPage() {
                 />
               </div>
 
-              <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
-                <h4 className="font-medium text-amber-800 mb-2">
+              <div className="p-4 bg-accent/10 border border-accent/30">
+                <h4 className="font-medium text-accent mb-2">
                   Recommended safety practices
                 </h4>
-                <ul className="text-sm text-amber-700 space-y-1">
+                <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Avoid generating personally identifiable information (PII)</li>
                   <li>• Include refusal guidance for harmful requests</li>
                   <li>• Specify content boundaries clearly</li>
@@ -420,9 +420,9 @@ export default function PromptBuilderPage() {
               </div>
 
               {/* Preview */}
-              <div className="p-4 rounded-lg bg-muted">
+              <div className="p-4 bg-muted">
                 <h4 className="font-medium mb-3">Prompt Preview</h4>
-                <div className="p-4 rounded-lg bg-background border border-border">
+                <div className="p-4 bg-background border border-border">
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                     <strong>System:</strong> You are a professional assistant. Your task is to{" "}
                     {formData.goal || "[goal will appear here]"}.

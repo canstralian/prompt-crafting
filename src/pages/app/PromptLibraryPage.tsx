@@ -143,7 +143,7 @@ export default function PromptLibraryPage() {
           <Link
             key={prompt.id}
             to={`/app/prompts/${prompt.id}`}
-            className="group p-5 rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-200 hover:border-amber-500/30"
+            className="group p-5 border border-border bg-card hover:shadow-md transition-all duration-200 hover:border-primary/30"
           >
             <div className="flex items-start justify-between mb-3">
               <Badge variant="muted" className="text-xs">
@@ -151,7 +151,7 @@ export default function PromptLibraryPage() {
               </Badge>
               <div className="flex items-center gap-1">
                 {prompt.starred && (
-                  <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  <Star className="h-4 w-4 text-accent fill-accent" />
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -159,7 +159,7 @@ export default function PromptLibraryPage() {
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="bg-popover">
                     <DropdownMenuItem>
                       <Copy className="mr-2 h-4 w-4" />
                       Duplicate
@@ -172,7 +172,7 @@ export default function PromptLibraryPage() {
                 </DropdownMenu>
               </div>
             </div>
-            <h3 className="font-semibold mb-2 group-hover:text-amber-600 transition-colors">
+            <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors">
               {prompt.title}
             </h3>
             <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
@@ -182,7 +182,7 @@ export default function PromptLibraryPage() {
               {prompt.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
+                  className="inline-flex items-center text-xs px-2 py-0.5 bg-secondary text-secondary-foreground"
                 >
                   <Tag className="mr-1 h-2.5 w-2.5" />
                   {tag}
@@ -203,7 +203,7 @@ export default function PromptLibraryPage() {
       {/* Empty state (hidden, for reference) */}
       {samplePrompts.length === 0 && (
         <div className="text-center py-16 px-4">
-          <div className="inline-flex h-16 w-16 rounded-full bg-muted items-center justify-center mb-4">
+          <div className="inline-flex h-16 w-16 bg-muted items-center justify-center mb-4">
             <Folder className="h-8 w-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-semibold mb-2">No prompts yet</h3>

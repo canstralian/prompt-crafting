@@ -174,7 +174,7 @@ export default function TestRunDetailPage() {
             className={cn(
               "h-5 w-5 transition-colors",
               star <= value
-                ? "fill-amber-400 text-amber-400"
+                ? "fill-accent text-accent"
                 : "text-muted-foreground/30"
             )}
           />
@@ -233,12 +233,12 @@ export default function TestRunDetailPage() {
       {/* Prompt Info */}
       <div className="grid gap-4 md:grid-cols-2">
         {testRun.systemPrompt && (
-          <div className="p-4 rounded-lg border border-border bg-card">
+          <div className="p-4 border border-border bg-card">
             <Label className="text-xs uppercase text-muted-foreground">System Prompt</Label>
             <p className="mt-2 text-sm whitespace-pre-wrap">{testRun.systemPrompt}</p>
           </div>
         )}
-        <div className={cn("p-4 rounded-lg border border-border bg-card", !testRun.systemPrompt && "md:col-span-2")}>
+        <div className={cn("p-4 border border-border bg-card", !testRun.systemPrompt && "md:col-span-2")}>
           <Label className="text-xs uppercase text-muted-foreground">User Prompt</Label>
           <p className="mt-2 text-sm whitespace-pre-wrap">{testRun.userPrompt}</p>
         </div>
@@ -251,7 +251,7 @@ export default function TestRunDetailPage() {
           {testRun.outputs.map((output, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-lg border border-border bg-muted/30 min-h-[200px] max-h-[400px] overflow-y-auto"
+              className="p-4 border border-border bg-muted/30 min-h-[200px] max-h-[400px] overflow-y-auto"
             >
               <Badge variant="secondary" className="mb-3">
                 Variant {idx + 1}
@@ -270,7 +270,7 @@ export default function TestRunDetailPage() {
             {(Object.keys(ratingLabels) as Array<keyof typeof ratingLabels>).map((key) => (
               <div
                 key={key}
-                className="flex items-center justify-between p-3 rounded-lg border border-border bg-card"
+                className="flex items-center justify-between p-3 border border-border bg-card"
               >
                 <span className="font-medium">{ratingLabels[key]}</span>
                 <RatingStars

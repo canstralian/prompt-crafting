@@ -11,7 +11,6 @@ import {
   User,
   UserPlus,
   MoreHorizontal,
-  Settings,
   Copy,
 } from "lucide-react";
 import {
@@ -69,7 +68,7 @@ export default function WorkspacePage() {
       </div>
 
       {/* Workspace Info */}
-      <div className="p-6 rounded-xl border border-border bg-card space-y-4">
+      <div className="p-6 border border-border bg-card space-y-4 shadow-sm">
         <h2 className="text-lg font-semibold">Workspace</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -79,10 +78,10 @@ export default function WorkspacePage() {
           <div className="space-y-2">
             <Label htmlFor="workspace-slug">Workspace URL</Label>
             <div className="flex">
-              <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-input bg-muted text-sm text-muted-foreground">
+              <span className="inline-flex items-center px-3 border border-r-0 border-input bg-muted text-sm text-muted-foreground">
                 promptcrafting.net/
               </span>
-              <Input id="workspace-slug" defaultValue="my-workspace" className="rounded-l-none" />
+              <Input id="workspace-slug" defaultValue="my-workspace" className="border-l-0" />
             </div>
           </div>
         </div>
@@ -90,7 +89,7 @@ export default function WorkspacePage() {
       </div>
 
       {/* Team Members */}
-      <div className="p-6 rounded-xl border border-border bg-card space-y-4">
+      <div className="p-6 border border-border bg-card space-y-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold">Team Members</h2>
@@ -103,7 +102,7 @@ export default function WorkspacePage() {
                 Invite
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-card">
               <DialogHeader>
                 <DialogTitle>Invite Team Member</DialogTitle>
                 <DialogDescription>
@@ -144,11 +143,11 @@ export default function WorkspacePage() {
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+              className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-5 w-5 text-muted-foreground" />
+                <div className="h-10 w-10 bg-secondary flex items-center justify-center">
+                  <User className="h-5 w-5 text-secondary-foreground" />
                 </div>
                 <div>
                   <p className="font-medium">{member.name}</p>
@@ -164,7 +163,7 @@ export default function WorkspacePage() {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="bg-popover">
                       <DropdownMenuItem>Change role</DropdownMenuItem>
                       <DropdownMenuItem className="text-destructive">
                         Remove member
@@ -179,7 +178,7 @@ export default function WorkspacePage() {
       </div>
 
       {/* API Settings */}
-      <div className="p-6 rounded-xl border border-border bg-card space-y-4">
+      <div className="p-6 border border-border bg-card space-y-4 shadow-sm">
         <div>
           <h2 className="text-lg font-semibold">API Settings</h2>
           <p className="text-sm text-muted-foreground">
@@ -217,7 +216,7 @@ export default function WorkspacePage() {
       </div>
 
       {/* Danger Zone */}
-      <div className="p-6 rounded-xl border border-destructive/20 bg-destructive/5 space-y-4">
+      <div className="p-6 border border-destructive/20 bg-destructive/5 space-y-4">
         <div>
           <h2 className="text-lg font-semibold text-destructive">Danger Zone</h2>
           <p className="text-sm text-muted-foreground">
