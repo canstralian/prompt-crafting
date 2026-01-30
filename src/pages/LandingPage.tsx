@@ -78,9 +78,68 @@ const testimonials = [
   },
 ];
 
+// JSON-LD structured data for SEO
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://prompt-crafting-engine.lovable.app/#organization",
+      name: "PromptCrafting",
+      url: "https://prompt-crafting-engine.lovable.app",
+      logo: "https://prompt-crafting-engine.lovable.app/og-image.png",
+      description: "Professional-grade tools for versioning, testing, and collaborating on AI prompts.",
+      sameAs: ["https://twitter.com/PromptCrafting"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://prompt-crafting-engine.lovable.app/#website",
+      url: "https://prompt-crafting-engine.lovable.app",
+      name: "PromptCrafting",
+      publisher: { "@id": "https://prompt-crafting-engine.lovable.app/#organization" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://prompt-crafting-engine.lovable.app/#app",
+      name: "PromptCrafting",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Web",
+      description: "The professional toolkit for prompt engineering. Build, test, version, and share high-quality prompts for your LLM workflows.",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+        description: "Free to start, no credit card required"
+      },
+      featureList: [
+        "Prompt Library with versioning",
+        "Step-by-step Prompt Builder",
+        "Test & Iterate workflows",
+        "Team Workspaces with collaboration",
+        "JSON/Markdown export",
+        "Developer-friendly API structure"
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://prompt-crafting-engine.lovable.app/#webpage",
+      url: "https://prompt-crafting-engine.lovable.app",
+      name: "PromptCrafting - Design prompts you can trust",
+      description: "Professional-grade tools for versioning, testing, and collaborating on AI prompts. Built for teams who demand reliability.",
+      isPartOf: { "@id": "https://prompt-crafting-engine.lovable.app/#website" },
+      about: { "@id": "https://prompt-crafting-engine.lovable.app/#app" }
+    }
+  ]
+};
+
 export default function LandingPage() {
   return (
     <div className="flex flex-col">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section - Neural Precision */}
       <section className="relative overflow-hidden bg-hero-gradient py-28 md:py-40">
         {/* Neural network pattern overlay */}
