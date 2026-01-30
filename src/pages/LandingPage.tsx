@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { NetworkPattern } from "@/components/ui/network-pattern";
 import {
   FadeIn,
   StaggerContainer,
@@ -83,24 +84,7 @@ export default function LandingPage() {
       {/* Hero Section - Neural Precision */}
       <section className="relative overflow-hidden bg-hero-gradient py-28 md:py-40">
         {/* Neural network pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.08]">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="neural-grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-                <circle cx="30" cy="30" r="1.5" fill="currentColor" className="text-white" />
-                <circle cx="0" cy="0" r="1" fill="currentColor" className="text-white" />
-                <circle cx="60" cy="0" r="1" fill="currentColor" className="text-white" />
-                <circle cx="0" cy="60" r="1" fill="currentColor" className="text-white" />
-                <circle cx="60" cy="60" r="1" fill="currentColor" className="text-white" />
-                <line x1="0" y1="0" x2="30" y2="30" stroke="currentColor" strokeWidth="0.5" className="text-white/50" />
-                <line x1="60" y1="0" x2="30" y2="30" stroke="currentColor" strokeWidth="0.5" className="text-white/50" />
-                <line x1="0" y1="60" x2="30" y2="30" stroke="currentColor" strokeWidth="0.5" className="text-white/50" />
-                <line x1="60" y1="60" x2="30" y2="30" stroke="currentColor" strokeWidth="0.5" className="text-white/50" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#neural-grid)" />
-          </svg>
-        </div>
+        <NetworkPattern id="hero-network" opacity={0.08} colorClass="text-white" />
         {/* Gradient overlays for depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30" />
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
@@ -178,7 +162,8 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 md:py-32">
+      <section className="py-20 md:py-32 relative overflow-hidden">
+        <NetworkPattern id="features-network" opacity={0.03} variant="sparse" />
         <div className="container">
           <FadeIn className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Features</Badge>
@@ -207,7 +192,8 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works */}
-      <section className="py-20 md:py-32 bg-muted/50">
+      <section className="py-20 md:py-32 bg-muted/50 relative overflow-hidden">
+        <NetworkPattern id="howitworks-network" opacity={0.04} size={80} />
         <div className="container">
           <FadeIn className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">How it works</Badge>
@@ -247,7 +233,8 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 md:py-32">
+      <section className="py-20 md:py-32 relative overflow-hidden">
+        <NetworkPattern id="testimonials-network" opacity={0.025} variant="sparse" size={100} />
         <div className="container">
           <FadeIn className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Testimonials</Badge>
@@ -275,24 +262,7 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-24 md:py-36 bg-hero-gradient relative overflow-hidden">
         {/* Neural network pattern */}
-        <div className="absolute inset-0 opacity-[0.06]">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="cta-neural" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-                <circle cx="40" cy="40" r="2" fill="currentColor" className="text-white" />
-                <circle cx="0" cy="0" r="1" fill="currentColor" className="text-white" />
-                <circle cx="80" cy="0" r="1" fill="currentColor" className="text-white" />
-                <circle cx="0" cy="80" r="1" fill="currentColor" className="text-white" />
-                <circle cx="80" cy="80" r="1" fill="currentColor" className="text-white" />
-                <line x1="0" y1="0" x2="40" y2="40" stroke="currentColor" strokeWidth="0.5" className="text-white/40" />
-                <line x1="80" y1="0" x2="40" y2="40" stroke="currentColor" strokeWidth="0.5" className="text-white/40" />
-                <line x1="0" y1="80" x2="40" y2="40" stroke="currentColor" strokeWidth="0.5" className="text-white/40" />
-                <line x1="80" y1="80" x2="40" y2="40" stroke="currentColor" strokeWidth="0.5" className="text-white/40" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#cta-neural)" />
-          </svg>
-        </div>
+        <NetworkPattern id="cta-network" opacity={0.06} size={80} colorClass="text-white" variant="dense" />
         {/* Accent glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-accent/15 rounded-full blur-3xl" />
         
@@ -317,7 +287,8 @@ export default function LandingPage() {
       </section>
 
       {/* Resources Preview */}
-      <section className="py-20 md:py-32">
+      <section className="py-20 md:py-32 relative overflow-hidden">
+        <NetworkPattern id="resources-network" opacity={0.03} variant="sparse" size={70} />
         <div className="container">
           <FadeIn className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
             <div>
