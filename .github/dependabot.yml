@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # Python - Security patches daily, features weekly
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+      - "security"
+    allow:
+      - dependency-type: "direct"
+    # Ignore dev dependencies for production security focus
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # TypeScript - Security critical
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "typescript"
+      - "security"
+    # Auto-merge patch updates for known vulnerabilities
+    versioning-strategy: "increase-if-necessary"
