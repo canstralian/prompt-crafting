@@ -1,5 +1,37 @@
 # PromptCrafting Project Rules (Source of Truth)
 
+## Repository scope
+
+This repository contains a **single product**: a React/TypeScript SaaS application
+for prompt-engineering workflows, deployed on Cloudflare Pages with a Supabase backend.
+
+### What belongs here
+- Frontend application code (`src/`)
+- Supabase database migrations and edge functions (`supabase/`)
+- CI/CD workflows and GitHub configuration (`.github/`)
+- Prompt testing scripts and datasets (`scripts/`, `data/`)
+- Documentation directly related to this application (`docs/`)
+
+### What does NOT belong here
+- Standalone server applications (e.g. MCP servers, API gateways)
+- Infrastructure or services with independent deployment lifecycles
+- Libraries or tools that serve a broader audience than this product
+- Full-stack applications that are not part of the PromptCrafting SaaS
+
+If a component has its own deployment pipeline, versioning, or user base, it should
+live in a **separate repository** and be referenced here via documentation or package
+dependency—not merged as a subdirectory.
+
+### Cross-referencing external projects
+To integrate patterns or code from related projects (security tooling, MCP servers,
+automation frameworks), prefer:
+1. **Package dependency** — publish the external project and install it via npm
+2. **Extracted examples** — add minimal, self-contained examples under `docs/examples/`
+3. **Documentation links** — reference the external repo in relevant docs
+
+Avoid importing entire codebases as subdirectories. This preserves cognitive focus,
+keeps CI fast, and maintains clear ownership boundaries.
+
 ## Product intent
 Build a premium, trustworthy SaaS for prompt-engineering workflows. Prioritise correctness, security, clarity, and a calm UX over feature volume. Favour small, reliable primitives (prompts, versions, test runs, posts) that evolve cleanly.
 
