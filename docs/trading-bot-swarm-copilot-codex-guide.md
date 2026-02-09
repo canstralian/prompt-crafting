@@ -96,16 +96,12 @@ assistant:
 ```yaml
 name: quality-gate
 on:
-  push:
+  push: &trigger_config
     branches: [main]
     paths-ignore:
       - "**/*.md"
       - "docs/**"
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
+  pull_request: *trigger_config
 
 jobs:
   quality-gate:
