@@ -1,53 +1,57 @@
 # Trading Bot Swarm: GitHub Copilot + Codex Configuration Guide
 
 ## Purpose and scope
-This guide defines how to configure GitHub Copilot and Codex in the Trading Bot Swarm ecosystem to ensure consistent quality, secure automation, and repeatable delivery. Copilot is treated as a *pair programmer* that follows strict behavioral rules: obey repository standards, run tests/linters for code changes, and avoid unsafe or speculative changes. Codex follows the same expectations with additional automation and change-management rigor.
+This guide standardizes how GitHub Copilot and Codex operate within the Trading Bot Swarm ecosystem. It ensures consistent quality, secure automation, and repeatable delivery across trading services, infrastructure, and data pipelines. Copilot is treated as a **pair programmer** with strict behavioral rules: follow repository conventions, respect security defaults, run required tests and linters for code changes, and avoid speculative or risky modifications. Codex follows the same expectations with heightened automation discipline, including scoped changes and explicit validation evidence.
 
 ## Configuration overview
 ### Testing and linting
-- **Mandatory for code changes**: run unit tests and linting for any change that affects runtime behavior.
-- **Documentation-only changes**: skip tests and linting unless the docs reference code that must be validated.
+- **Mandatory for code changes**: run unit/integration tests and linting for any change that affects runtime behavior.
+- **Documentation-only changes**: skip tests/linters unless the docs reference code that must be validated.
 - **Local-first validation**: validate in local/dev environments before pushing.
-- **Workflow optimization**: use CI `paths-ignore` or change detection to avoid unnecessary jobs on docs-only updates.
+- **Quality gate alignment**: match CI quality gates locally to reduce pipeline failures.
 
 ### Code style
-- Enforce consistent formatting via Prettier/ESLint (or equivalent for each language).
+- Enforce consistent formatting through Prettier/ESLint (or language-specific equivalents).
 - Prefer explicit types and interfaces for shared domain models.
-- Favor small, composable functions with single-responsibility boundaries.
+- Keep functions small and composable with clear, single-responsibility boundaries.
+- Align naming with trading domain terms (orders, fills, strategies, risk limits).
 
-### Async patterns
-- Prefer async/await; avoid mixed callback/promise styles.
-- Use explicit timeouts and abort signals for external I/O.
-- Apply backoff and retry policies only to idempotent operations.
+### Async patterns and reliability
+- Prefer `async/await` over mixed callback/promise styles.
+- Always use timeouts and abort signals for external I/O.
+- Apply retries only to idempotent operations with exponential backoff and jitter.
+- Guard critical trade flows with circuit breakers and rate-limit awareness.
 
 ### Security defaults
-- Never hardcode secrets; use environment variables and secrets managers.
+- Never hardcode secrets; use environment variables and managed secrets.
 - Validate all external inputs (API payloads, webhooks, user data).
-- Ensure least-privilege access for tokens and service accounts.
+- Enforce least-privilege access for tokens and service accounts.
+- Log securely: avoid emitting secrets or PII in logs.
 
 ### Logging and observability
-- Use structured logs (JSON) with correlation IDs.
-- Emit metrics for trade execution latency, error rates, and strategy health.
-- Centralize tracing across bot components and exchanges.
+- Emit structured logs (JSON) with correlation/trace IDs.
+- Track metrics for trade latency, fill success rate, and strategy health.
+- Use distributed tracing across exchange adapters and risk engines.
+- Standardize alert thresholds for critical failures and latency spikes.
 
 ### CI/CD integration
-- Define quality gates: lint, unit tests, security scans, and type checks.
-- Block merges on quality gate failures.
-- Maintain a consistent build pipeline across repositories.
-- Keep CI secrets scoped to least privilege and rotate on a fixed cadence.
+- Define quality gates: lint, tests, type checks, and security scans.
+- Block merges when quality gates fail.
+- Use a consistent build pipeline across all repos.
+- Rotate secrets on a fixed cadence and scope CI permissions minimally.
 
 ### Version control
 - Use conventional commits and semantic versioning.
-- Require PR review and automated checks before merge.
+- Require PR review and automated checks prior to merge.
 - Tag releases via CI for traceability.
-- Prefer protected branches, signed commits, and linear history where possible.
+- Prefer protected branches, signed commits, and linear history when possible.
 
 ## Custom instruction behavior for Codex and Copilot
 ### Example rules
 - Do not bypass lint/test failures.
-- Avoid speculative dependencies or framework changes.
+- Avoid unreviewed dependencies or framework changes.
 - Ask for clarification when requirements are ambiguous.
-- Provide diff-focused change summaries.
+- Provide diff-focused change summaries with validation notes.
 
 ### Full custom instructions (conceptual YAML)
 ```yaml
@@ -61,10 +65,6 @@ assistant:
     - avoid_unreviewed_dependencies: true
     - request_clarification_on_ambiguity: true
     - limit_changes_to_scope: true
-  security:
-    - no_hardcoded_secrets: true
-    - validate_external_inputs: true
-    - least_privilege_tokens: true
   quality:
     - lint_on_change: true
     - format_on_save: true
@@ -73,10 +73,16 @@ assistant:
     - use_async_await: true
     - set_timeouts: true
     - idempotent_retries_only: true
-  logging:
+  security:
+    - no_hardcoded_secrets: true
+    - validate_external_inputs: true
+    - least_privilege_tokens: true
+    - redact_sensitive_logs: true
+  observability:
     - structured_logs: true
     - include_correlation_id: true
     - emit_metrics: true
+    - trace_external_calls: true
 ```
 
 ## GitHub Actions workflow example (lint + test)
@@ -128,7 +134,7 @@ jobs:
 **Best practices**
 - Use conventional commits.
 - Generate changelogs and version tags automatically.
-- Tag releases only after quality gate passes.
+- Tag releases only after quality gates pass.
 
 ```yaml
 name: release
@@ -156,6 +162,7 @@ jobs:
 ## Security and dependency scanning
 - Enable Dependabot (or Renovate) for dependency updates.
 - Run static analysis and vulnerability scans in CI.
+- Fail builds on critical vulnerabilities with defined SLAs.
 
 ```yaml
 name: security-scan
@@ -181,24 +188,25 @@ jobs:
 ### Proposing changes
 - Create a feature branch from `main`.
 - Use conventional commit messages.
-- Include test updates for behavioral changes.
+- Include tests for behavioral changes and update fixtures if needed.
 
 ### Review criteria
 - Correctness and adherence to trading rules.
-- Security posture (input validation, secret handling).
+- Security posture (input validation, secret handling, RBAC).
 - Observability coverage (logs, metrics, traces).
 - Test coverage and stability.
 
 ### Validation process
-- CI quality gate must pass.
+- CI quality gates must pass.
 - At least one approving reviewer.
 - Evidence of local testing for risky changes.
 
 ## Troubleshooting and optimization tips
 - **Flaky tests**: isolate external dependencies and use deterministic fixtures.
-- **Slow CI**: use caching and split lint/test jobs.
+- **Slow CI**: enable caching and split lint/test jobs.
 - **Lint errors**: run formatter locally before committing.
 - **API throttling**: add backoff and rate-limit handling with metrics.
+- **Dependency drift**: regenerate lockfiles with approved tool versions.
 
 ## Maintenance schedule
 - Review this guide quarterly.
