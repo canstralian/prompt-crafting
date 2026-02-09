@@ -193,8 +193,10 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
       - run: npx eslint .
-      - run: npx cyclonedx-npm --output-file sbom.xml
-      - uses: actions/upload-artifact@v4
+      - name: Generate SBOM
+        run: npx cyclonedx-npm --output-file sbom.xml
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
         with:
           name: sbom
           path: sbom.xml
