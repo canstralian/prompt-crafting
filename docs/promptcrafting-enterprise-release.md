@@ -115,23 +115,6 @@ Recommended layout:
 
 ### 5.3. Release Notes
 Template:
-```
-## PromptCrafting.net vX.Y.Z
-
-### Highlights
-- [Feature] ...
-- [Improvement] ...
-
-### Fixes
-- [Bug] ...
-
-### Security
-- [Security] ...
-
-### Developer Notes
-- [Breaking changes] ...
-- [Migration steps] ...
-```
 
 ### 5.4. Rollback Plan
 - Maintain prior release artifacts and tags.
