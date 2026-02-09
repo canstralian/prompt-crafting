@@ -66,7 +66,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-200",
+        "sticky top-0 z-50 w-full transition-[background-color,backdrop-filter,box-shadow,border-color] duration-200",
         scrolled
           ? "bg-background/95 backdrop-blur-md shadow-sm border-b border-border/50"
           : "bg-background/80 backdrop-blur-sm border-b border-transparent"
@@ -83,7 +83,7 @@ export function Header() {
                 key={link.href}
                 to={link.href}
                 className={cn(
-                  "relative px-4 py-2 text-sm font-medium tracking-wide transition-all duration-150",
+                  "relative px-4 py-2 text-sm font-medium tracking-wide transition-colors duration-150",
                   "rounded-lg",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   isActive(link.href)
@@ -105,7 +105,7 @@ export function Header() {
             variant="ghost"
             size="sm"
             asChild
-            className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide transition-all duration-150"
+            className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide transition-colors duration-150"
           >
             <Link to="/auth">Log in</Link>
           </Button>
@@ -116,7 +116,7 @@ export function Header() {
               "bg-accent hover:bg-accent/90 text-accent-foreground",
               "rounded-lg font-medium tracking-wide",
               "shadow-sm hover:shadow-md",
-              "transition-all duration-150",
+              "transition-[background-color,box-shadow] duration-150",
               "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               "group"
             )}
@@ -131,7 +131,7 @@ export function Header() {
         {/* Mobile menu button */}
         <button
           className={cn(
-            "md:hidden p-2.5 -mr-2 rounded-lg transition-all duration-150",
+            "md:hidden p-2.5 -mr-2 rounded-lg transition-colors duration-150",
             "text-muted-foreground hover:text-foreground hover:bg-secondary/60",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           )}
@@ -142,13 +142,13 @@ export function Header() {
           <div className="relative h-5 w-5">
             <Menu
               className={cn(
-                "absolute inset-0 h-5 w-5 transition-all duration-200",
+                "absolute inset-0 h-5 w-5 transition-[opacity,transform] duration-200",
                 mobileMenuOpen ? "opacity-0 rotate-90" : "opacity-100 rotate-0"
               )}
             />
             <X
               className={cn(
-                "absolute inset-0 h-5 w-5 transition-all duration-200",
+                "absolute inset-0 h-5 w-5 transition-[opacity,transform] duration-200",
                 mobileMenuOpen ? "opacity-100 rotate-0" : "opacity-0 -rotate-90"
               )}
             />
@@ -159,7 +159,7 @@ export function Header() {
       {/* Mobile menu drawer */}
       <div
         className={cn(
-          "md:hidden overflow-hidden transition-all duration-300 ease-out",
+          "md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out",
           "bg-background border-t border-border/50",
           mobileMenuOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
         )}
@@ -172,7 +172,7 @@ export function Header() {
               to={link.href}
               style={{ transitionDelay: mobileMenuOpen ? `${index * 50}ms` : "0ms" }}
               className={cn(
-                "relative px-4 py-3 text-base font-medium tracking-wide rounded-lg transition-all duration-150",
+                "relative px-4 py-3 text-base font-medium tracking-wide rounded-lg transition-[color,background-color,transform,opacity] duration-150",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 isActive(link.href)
                   ? "text-primary bg-primary/5"
@@ -220,7 +220,7 @@ export function Header() {
                 "bg-accent hover:bg-accent/90 text-accent-foreground",
                 "rounded-lg font-medium tracking-wide",
                 "shadow-sm hover:shadow-md",
-                "transition-all duration-150",
+                "transition-[background-color,box-shadow] duration-150",
                 "group"
               )}
             >
