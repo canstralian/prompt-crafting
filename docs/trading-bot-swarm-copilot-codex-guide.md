@@ -1,13 +1,13 @@
 # Trading Bot Swarm: GitHub Copilot + Codex Configuration Guide
 
 ## Purpose and scope
-This guide defines how to configure GitHub Copilot and Codex in the Trading Bot Swarm ecosystem to ensure consistent quality, secure automation, and repeatable delivery. Copilot is treated as a *pair programmer* that follows strict behavioral rules: obey repository standards, run tests/linters for code changes, and avoid unsafe or speculative changes. Codex follows the same expectations with additional automation and change-management rigor.
+This guide standardizes how GitHub Copilot and Codex are configured within the Trading Bot Swarm ecosystem to ensure consistent delivery, secure automation, and reliable engineering practices. Copilot acts as a *pair programmer* with strict behavioral rules, while Codex applies those same expectations with a heavier emphasis on automation, traceability, and change control. The guidance below applies to all services, strategy modules, data pipelines, and infra-as-code repositories in the Trading Bot Swarm.
 
 ## Configuration overview
 ### Testing and linting
-- **Mandatory for code changes**: run unit tests and linting for any change that affects runtime behavior.
-- **Documentation-only changes**: skip tests and linting unless the docs reference code that must be validated.
-- **Local-first validation**: validate in local/dev environments before pushing.
+- **Mandatory for code changes**: run unit tests and linting for any change that affects runtime behavior or business logic.
+- **Documentation-only changes**: skip tests and linting unless docs require validation for code references, snippets, or examples.
+- **Local-first validation**: validate in local/dev environments before opening a PR.
 
 ### Code style
 - Enforce consistent formatting via Prettier/ESLint (or equivalent for each language).
@@ -45,6 +45,7 @@ This guide defines how to configure GitHub Copilot and Codex in the Trading Bot 
 - Avoid speculative dependencies or framework changes.
 - Ask for clarification when requirements are ambiguous.
 - Provide diff-focused change summaries.
+- Prefer minimal, reversible changes that map to explicit requirements.
 
 ### Full custom instructions (conceptual YAML)
 ```yaml
@@ -58,14 +59,17 @@ assistant:
     - avoid_unreviewed_dependencies: true
     - request_clarification_on_ambiguity: true
     - limit_changes_to_scope: true
+    - prefer_explicit_requirements: true
   security:
     - no_hardcoded_secrets: true
     - validate_external_inputs: true
     - least_privilege_tokens: true
+    - sanitize_logs: true
   quality:
     - lint_on_change: true
     - format_on_save: true
     - prefer_small_commits: true
+    - enforce_type_checks: true
   async_patterns:
     - use_async_await: true
     - set_timeouts: true
@@ -74,6 +78,9 @@ assistant:
     - structured_logs: true
     - include_correlation_id: true
     - emit_metrics: true
+  documentation:
+    - ignore_tests_for_docs_only: true
+    - verify_code_snippets_if_used: true
 ```
 
 ## GitHub Actions workflow example (lint + test)
@@ -123,6 +130,7 @@ jobs:
 - Use conventional commits.
 - Generate changelogs and version tags automatically.
 - Tag releases only after quality gate passes.
+- Require a signed release artifact for production deployments.
 
 ```yaml
 name: release
@@ -150,6 +158,7 @@ jobs:
 ## Security and dependency scanning
 - Enable Dependabot (or Renovate) for dependency updates.
 - Run static analysis and vulnerability scans in CI.
+- Fail builds on high-severity findings and require explicit triage for exceptions.
 
 ```yaml
 name: security-scan
@@ -176,6 +185,7 @@ jobs:
 - Create a feature branch from `main`.
 - Use conventional commit messages.
 - Include test updates for behavioral changes.
+- Document config changes and update runbooks when needed.
 
 ### Review criteria
 - Correctness and adherence to trading rules.
@@ -193,11 +203,13 @@ jobs:
 - **Slow CI**: use caching and split lint/test jobs.
 - **Lint errors**: run formatter locally before committing.
 - **API throttling**: add backoff and rate-limit handling with metrics.
+- **Security scan noise**: suppress only with a documented justification and expiry.
 
 ## Maintenance schedule
 - Review this guide quarterly.
 - Update for new tooling or version upgrades.
 - Retire deprecated workflows and add new best practices as needed.
+- Validate that Copilot/Codex instructions still match current repo policies.
 
----
-**Goal**: Standardize excellence and strengthen the reliability, performance, and safety of the Trading Bot Swarm ecosystem.
+## Closing note
+The goal of this guide is to standardize excellence and strengthen the reliability, performance, and safety of the Trading Bot Swarm ecosystem.
