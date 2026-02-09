@@ -1,28 +1,32 @@
 import {
-  users, type User, type InsertUser,
-  learnCategories, type LearnCategory, type InsertLearnCategory,
-  learnPosts, type LearnPost, type InsertLearnPost,
-  drafts, type Draft, type InsertDraft,
-  testRuns, type TestRun, type InsertTestRun,
+  users, type User,
+  learnCategories, type LearnCategory,
+  learnPosts, type LearnPost,
+  drafts, type Draft,
+  testRuns, type TestRun,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
 
+type DbInsertUser = typeof users.$inferInsert;
+type DbInsertDraft = typeof drafts.$inferInsert;
+type DbInsertTestRun = typeof testRuns.$inferInsert;
+
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createUser(user: DbInsertUser): Promise<User>;
 
   getLearnCategories(): Promise<LearnCategory[]>;
   getLearnPosts(categoryId?: number, categorySlug?: string): Promise<(LearnPost & { category?: LearnCategory })[]>;
   getLearnPostBySlug(slug: string): Promise<(LearnPost & { category?: LearnCategory }) | undefined>;
 
   getDraft(id: number): Promise<Draft | undefined>;
-  createDraft(draft: InsertDraft): Promise<Draft>;
+  createDraft(draft: DbInsertDraft): Promise<Draft>;
 
   getTestRunsByUserId(userId: number): Promise<TestRun[]>;
   getTestRun(id: number): Promise<TestRun | undefined>;
-  createTestRun(testRun: InsertTestRun): Promise<TestRun>;
+  createTestRun(testRun: DbInsertTestRun): Promise<TestRun>;
   updateTestRunRatings(id: number, ratings: { ratingClarity: number; ratingCompleteness: number; ratingCorrectness: number; ratingStyleMatch: number; notes?: string }): Promise<TestRun | undefined>;
 
   getAdminStats(): Promise<{ totalUsers: number; totalPosts: number; totalCategories: number; totalAdmins: number }>;
@@ -39,7 +43,7 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(insertUser: DbInsertUser): Promise<User> {
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
@@ -85,7 +89,7 @@ export class DatabaseStorage implements IStorage {
     return draft || undefined;
   }
 
-  async createDraft(draft: InsertDraft): Promise<Draft> {
+  async createDraft(draft: DbInsertDraft): Promise<Draft> {
     const [created] = await db.insert(drafts).values(draft).returning();
     return created;
   }
@@ -99,7 +103,7 @@ export class DatabaseStorage implements IStorage {
     return run || undefined;
   }
 
-  async createTestRun(testRun: InsertTestRun): Promise<TestRun> {
+  async createTestRun(testRun: DbInsertTestRun): Promise<TestRun> {
     const [created] = await db.insert(testRuns).values(testRun).returning();
     return created;
   }

@@ -8,12 +8,14 @@ PromptCrafting is a professional-grade SaaS application for designing, testing, 
   - Added helmet middleware for HTTP security headers
   - Added rate limiting on auth routes (20 req/15min) and API routes (200 req/15min)
   - Improved session security: httpOnly cookies, sameSite=lax, secure cookie name
-  - Added Zod-based input validation on auth routes with password strength requirements
+  - Added Zod-based input validation on all mutating routes (auth, drafts, test runs, ratings) with password strength requirements and field length limits
   - Sanitized error responses to prevent leaking internal details in production
   - Created reusable auth middleware (requireAuth, requireAdmin) for route protection
+  - Added CSRF protection middleware (origin/referer validation on mutating requests)
   - Added request body size limits (1MB)
   - Increased bcrypt salt rounds from 10 to 12
   - Added parameter validation on ID-based routes
+  - Fixed drizzle-zod/zod version mismatch by using manual Zod schemas and Drizzle $inferInsert types
 - **Feb 2026**: Migrated from Supabase to Replit fullstack JS template
   - Replaced Supabase Auth with session-based auth (bcrypt + express-session)
   - Replaced Supabase edge functions with Express API routes

@@ -1,6 +1,5 @@
 import { pgTable, text, serial, boolean, timestamp, integer, numeric, jsonb, uuid, pgEnum } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const users = pgTable("users", {
@@ -19,10 +18,12 @@ export const usersRelations = relations(users, ({ many }) => ({
   testRuns: many(testRuns),
 }));
 
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+  fullName: z.string().optional(),
+  avatarUrl: z.string().optional(),
+  role: z.string().optional(),
 });
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -40,10 +41,10 @@ export const learnCategoriesRelations = relations(learnCategories, ({ many }) =>
   posts: many(learnPosts),
 }));
 
-export const insertLearnCategorySchema = createInsertSchema(learnCategories).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertLearnCategorySchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  description: z.string().optional(),
 });
 export type InsertLearnCategory = z.infer<typeof insertLearnCategorySchema>;
 export type LearnCategory = typeof learnCategories.$inferSelect;
@@ -68,10 +69,14 @@ export const learnPostsRelations = relations(learnPosts, ({ one }) => ({
   }),
 }));
 
-export const insertLearnPostSchema = createInsertSchema(learnPosts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertLearnPostSchema = z.object({
+  title: z.string().min(1),
+  slug: z.string().min(1),
+  categoryId: z.number().int().optional(),
+  tags: z.array(z.string()).optional(),
+  summary: z.string().optional(),
+  bodyMarkdown: z.string().min(1),
+  isPublished: z.boolean().optional(),
 });
 export type InsertLearnPost = z.infer<typeof insertLearnPostSchema>;
 export type LearnPost = typeof learnPosts.$inferSelect;
@@ -101,10 +106,17 @@ export const draftsRelations = relations(drafts, ({ one }) => ({
   }),
 }));
 
-export const insertDraftSchema = createInsertSchema(drafts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertDraftSchema = z.object({
+  userId: z.number().int().nullable().optional(),
+  sessionId: z.string().nullable().optional(),
+  source: z.string().min(1, "Source is required"),
+  goal: z.string().min(1, "Goal is required"),
+  context: z.string().optional().default(""),
+  outputFormat: z.enum(["bullets", "table", "json", "email"]),
+  sectionsJson: z.any().optional(),
+  compiledPrompt: z.string().nullable().optional(),
+  metaJson: z.any().optional(),
+  expiresAt: z.date().optional(),
 });
 export type InsertDraft = z.infer<typeof insertDraftSchema>;
 export type Draft = typeof drafts.$inferSelect;
@@ -138,10 +150,19 @@ export const testRunsRelations = relations(testRuns, ({ one }) => ({
   }),
 }));
 
-export const insertTestRunSchema = createInsertSchema(testRuns).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertTestRunSchema = z.object({
+  userId: z.number().int(),
+  draftId: z.number().int().nullable().optional(),
+  promptTitle: z.string().min(1, "Prompt title is required"),
+  systemPrompt: z.string().nullable().optional(),
+  userPrompt: z.string().min(1, "User prompt is required"),
+  inputVariables: z.any().optional(),
+  outputs: z.any().optional(),
+  ratingClarity: z.number().int().min(1).max(5).nullable().optional(),
+  ratingCompleteness: z.number().int().min(1).max(5).nullable().optional(),
+  ratingCorrectness: z.number().int().min(1).max(5).nullable().optional(),
+  ratingStyleMatch: z.number().int().min(1).max(5).nullable().optional(),
+  notes: z.string().nullable().optional(),
 });
 export type InsertTestRun = z.infer<typeof insertTestRunSchema>;
 export type TestRun = typeof testRuns.$inferSelect;

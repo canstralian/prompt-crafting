@@ -1,10 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertDraftSchema, insertTestRunSchema } from "@shared/schema";
+import { insertDraftSchema, insertTestRunSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import { requireAuth, requireAdmin, authRateLimit, sanitizeError } from "./middleware";
+import { requireAuth, requireAdmin, authRateLimit, sanitizeError, csrfProtection } from "./middleware";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -20,15 +20,38 @@ const registerSchema = z.object({
   fullName: z.string().optional(),
 });
 
+const createDraftSchema = insertDraftSchema
+  .pick({ source: true, goal: true, outputFormat: true, context: true })
+  .extend({
+    source: z.string().min(1, "Source is required").max(500),
+    goal: z.string().min(1, "Goal is required").max(2000),
+    context: z.string().max(5000).optional().default(""),
+    generate: z.boolean().optional().default(false),
+  });
+
+const createTestRunSchema = insertTestRunSchema
+  .omit({ userId: true })
+  .extend({
+    promptTitle: z.string().min(1, "Prompt title is required").max(500),
+    userPrompt: z.string().min(1, "User prompt is required").max(10000),
+    systemPrompt: z.string().max(10000).nullable().optional(),
+    inputVariables: z.any().optional().default({}),
+    outputs: z.any().optional().default([]),
+    draftId: z.number().int().positive().nullable().optional(),
+    notes: z.string().max(2000).nullable().optional(),
+  });
+
 const ratingsSchema = z.object({
   clarity: z.number().int().min(1).max(5),
   completeness: z.number().int().min(1).max(5),
   correctness: z.number().int().min(1).max(5),
   styleMatch: z.number().int().min(1).max(5),
-  notes: z.string().optional(),
+  notes: z.string().max(2000).optional(),
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  app.use("/api/", csrfProtection);
+
   app.post("/api/auth/register", authRateLimit, async (req, res) => {
     try {
       const parsed = registerSchema.safeParse(req.body);
@@ -45,7 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email,
         password: hashedPassword,
         fullName: fullName || "User",
-      } as any);
+      });
       (req as any).session.userId = user.id;
       const { password: _, ...safeUser } = user;
       return res.status(201).json({ user: safeUser });
@@ -135,17 +158,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/drafts", async (req, res) => {
     try {
-      const userId = (req as any).session?.userId;
-      const { source, goal, outputFormat, context, generate } = req.body;
-
-      if (!source || !goal || !outputFormat) {
-        return res.status(400).json({ error: "Source, goal, and outputFormat are required" });
+      const parsed = createDraftSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.errors[0].message });
       }
+
+      const userId = (req as any).session?.userId;
+      const { source, goal, outputFormat, context, generate } = parsed.data;
 
       const sectionsJson = {
         role: { title: "Role", content: "", placeholder: "Define the AI's role or persona..." },
         objective: { title: "Objective", content: goal, placeholder: "What should the AI accomplish?" },
-        context: { title: "Context", content: context || "", placeholder: "Provide relevant background information..." },
+        context: { title: "Context", content: context, placeholder: "Provide relevant background information..." },
         constraints: { title: "Constraints", content: "", placeholder: "List any limitations or requirements..." },
         output_format: { title: "Output Format", content: outputFormat, placeholder: "Specify the desired output structure..." },
       };
@@ -174,11 +198,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         source,
         goal,
         outputFormat,
-        context: context || "",
+        context,
         sectionsJson,
         compiledPrompt,
         expiresAt,
-      } as any);
+      });
 
       return res.status(201).json({ draftId: draft.id, createdAt: draft.createdAt, generated: !!generate });
     } catch (err: unknown) {
@@ -231,12 +255,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/test-runs", requireAuth, async (req, res) => {
     try {
-      const userId = (req as any).userId;
-      const { promptTitle, systemPrompt, userPrompt, inputVariables, outputs, draftId, ratingClarity, ratingCompleteness, ratingCorrectness, ratingStyleMatch, notes } = req.body;
-
-      if (!promptTitle || !userPrompt) {
-        return res.status(400).json({ error: "promptTitle and userPrompt are required" });
+      const parsed = createTestRunSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.errors[0].message });
       }
+
+      const userId = (req as any).userId;
+      const { promptTitle, systemPrompt, userPrompt, inputVariables, outputs, draftId, ratingClarity, ratingCompleteness, ratingCorrectness, ratingStyleMatch, notes } = parsed.data;
 
       const run = await storage.createTestRun({
         userId,
@@ -251,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ratingCorrectness: ratingCorrectness || null,
         ratingStyleMatch: ratingStyleMatch || null,
         notes: notes || null,
-      } as any);
+      });
       return res.status(201).json(run);
     } catch (err: unknown) {
       return res.status(500).json({ error: sanitizeError(err) });
