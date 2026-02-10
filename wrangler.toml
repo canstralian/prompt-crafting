@@ -2,7 +2,8 @@
 # https://developers.cloudflare.com/pages/configuration/wrangler-configuration/
 
 name = "builder-prompt-engine"
-pages_build_output_dir = "dist"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "dist/public"
 
 # Build configuration
 [build]
