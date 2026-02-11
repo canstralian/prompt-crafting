@@ -1,0 +1,28 @@
+[package]
+name = "prompt-crafting"
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "A Rust project for prompt crafting with conditional builds and feature flags"
+license = "MIT"
+
+[dependencies]
+# Add dependencies here as needed
+serde = { version = "1.0", features = ["derive"], optional = true } # JSON serialization/deserialization
+
+[dev-dependencies]
+tokio = { version = "1.0", optional = true } # Optional for async tests or features
+
+[features]
+default = []  # No default features to keep the build minimal
+rmcp_client = ["serde"]  # Enable `rmcp_client` with `serde` dependency
+linear_server = []  # Placeholder for future features
+
+[mcp_servers.linear]
+url = "https://mcp.linear.app/mcp"
+
+[build-dependencies]
+# Add any specific build-time dependencies here
+
+[profile.release]
+opt-level = "z"  # Optimize for size
