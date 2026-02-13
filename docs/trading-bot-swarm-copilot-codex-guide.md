@@ -15,6 +15,23 @@ Copilot is treated as a **pair programmer** with strict behavioral rules: it sho
 
 ## Configuration overview
 
+### Promptcrafting MCP topology inside Trading Bot Swarm
+Treat prompt engineering as an execution engine rather than ad hoc writing. In practice, Copilot and Codex should interact with a structured MCP topology that enforces deterministic quality loops:
+
+1. **Lint prompts** for structure and policy violations.
+2. **Generate controlled prompt variants**.
+3. **Route variants across multiple model backends**.
+4. **Evaluate outputs against a test harness**.
+5. **Analyze token/latency/cost tradeoffs**.
+6. **Rank by quality and economic efficiency**.
+7. **Persist best variants with metadata**.
+8. **Log telemetry and feed adaptive mutations**.
+
+Conceptually, this is a control loop:
+`input -> mutation -> evaluation -> scoring -> cost filter -> versioning -> telemetry -> iteration`.
+
+The architecture objective is not to "author prompts" manually, but to **train prompts** through repeatable feedback cycles.
+
 ### Testing and linting
 - **Required for code changes**: run linting, type checks, and relevant tests when runtime behavior can change.
 - **Docs-only exception**: skip lint/test workflows for documentation-only changes unless documentation references executable examples that were modified.
@@ -32,6 +49,7 @@ Copilot is treated as a **pair programmer** with strict behavioral rules: it sho
 - Require timeouts and cancellation for external calls.
 - Retry only idempotent operations, with exponential backoff + jitter.
 - Add circuit-breaker and rate-limit handling on exchange-facing integrations.
+- For model orchestration pipelines, enforce bounded concurrency to avoid burst failures.
 
 ### Security defaults
 - No hardcoded credentials or tokens.
@@ -127,6 +145,25 @@ assistant_policy:
     include_correlation_ids: true
     emit_metrics_for_critical_paths: true
     trace_external_calls: true
+
+  promptcrafting_control_loop:
+    lint_before_generation: true
+    generate_variants:
+      strategy: controlled_mutation
+      default_count: 5
+    evaluate_across_models: true
+    multi_objective_ranking:
+      optimize:
+        - quality
+        - robustness
+        - cost
+    persist_best_variant: true
+    telemetry_feedback:
+      adapt_mutation_strategy: true
+      examples:
+        underspecified_output: increase_constraints
+        too_verbose: compress_and_clarify
+        cost_too_high: token_optimization
 ```
 
 ## GitHub workflow example: lint + test automation
@@ -257,6 +294,7 @@ jobs:
 - Observability completeness (logs, metrics, traces).
 - Performance impact and failure-mode handling.
 - Clarity and maintainability of implementation.
+- Prompt-system scoring rationale is explicit: reviewers can see whether change favors performance, robustness, elegance, or a weighted blend.
 
 ### Validation process
 - Required CI checks must pass.
@@ -275,6 +313,15 @@ jobs:
 - Review this guide **quarterly**.
 - Update whenever coding standards, security policy, CI architecture, or runtime versions change.
 - Track updates in release notes and notify contributors of policy-impacting changes.
+
+## Scoring-function governance (the "soul" of the system)
+For trading automation, document scoring priorities per domain:
+
+- **Performance-first**: maximize latency/throughput outcomes for fast decision paths.
+- **Robustness-first**: maximize stable behavior under noisy data, API failures, and degraded dependencies.
+- **Elegance-first**: prefer concise prompts/code only after quality and safety thresholds pass.
+
+Require every major prompt-orchestration update to state which objective dominates and why. This prevents silent drift in optimization goals between teams.
 
 ---
 **Goal**: Standardize excellence and strengthen the reliability, performance, and safety of the Trading Bot Swarm ecosystem.
