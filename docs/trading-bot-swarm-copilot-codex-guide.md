@@ -28,7 +28,7 @@ Treat prompt engineering as an execution engine rather than ad hoc writing. In p
 8. **Log telemetry and feed adaptive mutations**.
 
 Conceptually, this is a control loop:
-`input -> mutation -> evaluation -> scoring -> cost filter -> versioning -> telemetry -> iteration`.
+`input -> mutation -> evaluation -> scoring -> versioning -> telemetry -> iteration`.
 
 The architecture objective is not to "author prompts" manually, but to **train prompts** through repeatable feedback cycles.
 
