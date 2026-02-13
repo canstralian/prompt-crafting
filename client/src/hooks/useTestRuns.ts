@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 
 interface TestRun {
   id: number;
@@ -29,81 +32,66 @@ function computeOverallScore(run: TestRun): number | null {
   return ((run.ratingClarity || 0) + (run.ratingCompleteness || 0) + (run.ratingCorrectness || 0) + (run.ratingStyleMatch || 0)) / 4;
 }
 
+type EnrichedTestRun = TestRun & { status: string; overallScore: number | null };
+
 export function useTestRuns() {
   const { user } = useAuth();
-  const [testRuns, setTestRuns] = useState<(TestRun & { status: string; overallScore: number | null })[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchTestRuns = async () => {
-    if (!user) {
-      setTestRuns([]);
-      setIsLoading(false);
-      return;
-    }
+  const { data: rawTestRuns = [], isLoading, error, refetch } = useQuery<TestRun[]>({
+    queryKey: ["/api/test-runs"],
+    enabled: !!user,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  });
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/test-runs", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch test runs");
-      const data = await res.json();
-      const mapped = (data || []).map((row: any) => ({
-        id: row.id,
-        promptTitle: row.promptTitle,
-        draftId: row.draftId,
-        systemPrompt: row.systemPrompt,
-        userPrompt: row.userPrompt,
-        outputs: row.outputs as string[],
-        ratingClarity: row.ratingClarity,
-        ratingCompleteness: row.ratingCompleteness,
-        ratingCorrectness: row.ratingCorrectness,
-        ratingStyleMatch: row.ratingStyleMatch,
-        notes: row.notes,
-        createdAt: row.createdAt,
+  const testRuns: EnrichedTestRun[] = useMemo(
+    () =>
+      rawTestRuns.map((row) => ({
+        ...row,
         status: computeStatus(row),
         overallScore: computeOverallScore(row),
-      }));
-      setTestRuns(mapped);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch test runs");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      })),
+    [rawTestRuns],
+  );
 
-  useEffect(() => {
-    fetchTestRuns();
-  }, [user]);
+  const stats = useMemo(() => {
+    const scoredRuns = testRuns.filter((r) => r.overallScore !== null);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const stats = {
-    total: testRuns.length,
-    passRate: testRuns.length > 0
-      ? Math.round(
-          (testRuns.filter((r) => r.status === "passed").length / testRuns.length) * 100
-        )
-      : 0,
-    avgScore: testRuns.length > 0
-      ? (
-          testRuns
-            .filter((r) => r.overallScore !== null)
-            .reduce((sum, r) => sum + (r.overallScore || 0), 0) /
-          (testRuns.filter((r) => r.overallScore !== null).length || 1)
-        ).toFixed(1)
-      : "—",
-    thisWeek: testRuns.filter((r) => {
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return new Date(r.createdAt) > weekAgo;
-    }).length,
-  };
+    return {
+      total: testRuns.length,
+      passRate: testRuns.length > 0
+        ? Math.round(
+            (testRuns.filter((r) => r.status === "passed").length / testRuns.length) * 100,
+          )
+        : 0,
+      avgScore: scoredRuns.length > 0
+        ? (
+            scoredRuns.reduce((sum, r) => sum + (r.overallScore || 0), 0) / scoredRuns.length
+          ).toFixed(1)
+        : "—",
+      thisWeek: testRuns.filter((r) => new Date(r.createdAt) > weekAgo).length,
+    };
+  }, [testRuns]);
 
   return {
     testRuns,
     isLoading,
-    error,
+    error: error instanceof Error ? error.message : error ? String(error) : null,
     stats,
-    refetch: fetchTestRuns,
+    refetch,
   };
+}
+
+export function useCreateTestRun() {
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const res = await apiRequest("POST", "/api/test-runs", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/test-runs"] });
+    },
+  });
 }

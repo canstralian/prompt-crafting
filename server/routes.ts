@@ -7,17 +7,17 @@ import { z } from "zod";
 import { requireAuth, requireAdmin, authRateLimit, sanitizeError, csrfProtection } from "./middleware";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email format"),
+  email: z.string().email("Invalid email format").transform((e) => e.toLowerCase().trim()),
   password: z.string().min(1, "Password is required"),
 });
 
 const registerSchema = z.object({
-  email: z.string().email("Invalid email format"),
+  email: z.string().email("Invalid email format").transform((e) => e.toLowerCase().trim()),
   password: z.string().min(8, "Password must be at least 8 characters")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[0-9]/, "Password must contain at least one number"),
-  fullName: z.string().optional(),
+  fullName: z.string().max(200).optional(),
 });
 
 const createDraftSchema = insertDraftSchema
@@ -35,8 +35,8 @@ const createTestRunSchema = insertTestRunSchema
     promptTitle: z.string().min(1, "Prompt title is required").max(500),
     userPrompt: z.string().min(1, "User prompt is required").max(10000),
     systemPrompt: z.string().max(10000).nullable().optional(),
-    inputVariables: z.any().optional().default({}),
-    outputs: z.any().optional().default([]),
+    inputVariables: z.record(z.string(), z.unknown()).optional().default({}),
+    outputs: z.array(z.unknown()).optional().default([]),
     draftId: z.number().int().positive().nullable().optional(),
     notes: z.string().max(2000).nullable().optional(),
   });
@@ -124,6 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/learn/categories", async (_req, res) => {
     try {
       const categories = await storage.getLearnCategories();
+      res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=60");
       return res.json(categories);
     } catch (err: unknown) {
       return res.status(500).json({ error: sanitizeError(err) });
@@ -134,6 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const categorySlug = req.query.categorySlug as string | undefined;
       const posts = await storage.getLearnPosts(undefined, categorySlug);
+      res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=60");
       return res.json(posts);
     } catch (err: unknown) {
       return res.status(500).json({ error: sanitizeError(err) });
@@ -150,6 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!post) {
         return res.status(404).json({ error: "Post not found" });
       }
+      res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=60");
       return res.json(post);
     } catch (err: unknown) {
       return res.status(500).json({ error: sanitizeError(err) });
@@ -230,6 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = (req as any).userId;
       const runs = await storage.getTestRunsByUserId(userId);
+      res.set("Cache-Control", "private, no-store");
       return res.json(runs);
     } catch (err: unknown) {
       return res.status(500).json({ error: sanitizeError(err) });

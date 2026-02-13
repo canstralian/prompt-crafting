@@ -92,4 +92,21 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+
+  // Graceful shutdown: close connections cleanly on termination signals
+  const shutdown = () => {
+    log("Shutdown signal received, closing server...");
+    server.close(() => {
+      pool.end().then(() => {
+        log("Database pool closed.");
+        process.exit(0);
+      }).catch(() => {
+        process.exit(1);
+      });
+    });
+    // Force exit after 10 seconds if graceful shutdown stalls
+    setTimeout(() => process.exit(1), 10_000).unref();
+  };
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 })();

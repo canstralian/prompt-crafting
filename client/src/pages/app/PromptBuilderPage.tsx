@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,37 +69,47 @@ export default function PromptBuilderPage() {
     variables: [] as { name: string; type: string; required: boolean }[],
   });
 
-  const updateFormData = (field: string, value: string | { name: string; type: string; required: boolean }[]) => {
+  const updateFormData = useCallback((field: string, value: string | { name: string; type: string; required: boolean }[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const addVariable = () => {
+  const addVariable = useCallback(() => {
     setFormData((prev) => ({
       ...prev,
       variables: [...prev.variables, { name: "", type: "string", required: true }],
     }));
-  };
+  }, []);
 
-  const removeVariable = (index: number) => {
+  const removeVariable = useCallback((index: number) => {
     setFormData((prev) => ({
       ...prev,
       variables: prev.variables.filter((_, i) => i !== index),
     }));
-  };
+  }, []);
 
-  const handleNext = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
-  };
+  const handleNext = useCallback(() => {
+    setCurrentStep((prev) => (prev < 5 ? prev + 1 : prev));
+  }, []);
 
-  const handleBack = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
+  const handleBack = useCallback(() => {
+    setCurrentStep((prev) => (prev > 1 ? prev - 1 : prev));
+  }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Save logic would go here
     // Note: Actual save to database will be implemented with prompts table
     window.location.href = "/app/library";
-  };
+  }, []);
+
+  const promptPreview = useMemo(() => {
+    const parts: string[] = [];
+    parts.push(`You are a professional assistant. Your task is to ${formData.goal || "[goal will appear here]"}.`);
+    if (formData.audience) parts.push(`Target audience: ${formData.audience}.`);
+    if (formData.context) parts.push(`Context: ${formData.context}`);
+    if (formData.tone) parts.push(`Use a ${formData.tone.toLowerCase()} tone.`);
+    if (formData.safety) parts.push(formData.safety);
+    return parts.join(" ");
+  }, [formData.goal, formData.audience, formData.context, formData.tone, formData.safety]);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -430,14 +440,7 @@ export default function PromptBuilderPage() {
                 <h4 className="font-medium mb-3">Prompt Preview</h4>
                 <div className="p-4 bg-background border border-border">
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    <strong>System:</strong> You are a professional assistant. Your task is to{" "}
-                    {formData.goal || "[goal will appear here]"}.
-                    {formData.audience && (
-                      <> Target audience: {formData.audience}.</>
-                    )}
-                    {formData.context && <> Context: {formData.context}</>}
-                    {formData.tone && <> Use a {formData.tone.toLowerCase()} tone.</>}
-                    {formData.safety && <> {formData.safety}</>}
+                    <strong>System:</strong> {promptPreview}
                   </p>
                 </div>
               </div>

@@ -4,13 +4,26 @@ import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 
 export const securityHeaders = helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+    },
+  },
   crossOriginEmbedderPolicy: false,
 });
 
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: 10,
   message: { error: "Too many attempts, please try again later" },
   standardHeaders: true,
   legacyHeaders: false,
@@ -51,17 +64,14 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  const contentType = req.get("content-type") || "";
-  const isJsonRequest = contentType.includes("application/json");
-
   const origin = req.get("origin");
   const referer = req.get("referer");
   const host = req.get("host");
 
   if (!origin && !referer) {
-    if (isJsonRequest) {
-      return next();
-    }
+    // Reject all state-changing requests without an origin/referer header,
+    // regardless of content-type. The previous bypass for JSON requests
+    // weakened CSRF protection since browsers can send JSON via fetch.
     return res.status(403).json({ error: "Missing origin header" });
   }
 

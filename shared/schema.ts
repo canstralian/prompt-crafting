@@ -20,10 +20,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const insertUserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1),
-  fullName: z.string().optional(),
-  avatarUrl: z.string().optional(),
-  role: z.string().optional(),
+  password: z.string().min(8),
+  fullName: z.string().max(200).optional(),
+  avatarUrl: z.string().url().optional(),
+  role: z.enum(["user", "admin"]).optional(),
 });
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -106,6 +106,12 @@ export const draftsRelations = relations(drafts, ({ one }) => ({
   }),
 }));
 
+const draftSectionSchema = z.object({
+  title: z.string(),
+  content: z.string(),
+  placeholder: z.string().optional(),
+}).passthrough();
+
 export const insertDraftSchema = z.object({
   userId: z.number().int().nullable().optional(),
   sessionId: z.string().nullable().optional(),
@@ -113,9 +119,9 @@ export const insertDraftSchema = z.object({
   goal: z.string().min(1, "Goal is required"),
   context: z.string().optional().default(""),
   outputFormat: z.enum(["bullets", "table", "json", "email"]),
-  sectionsJson: z.any().optional(),
+  sectionsJson: z.record(z.string(), draftSectionSchema).optional(),
   compiledPrompt: z.string().nullable().optional(),
-  metaJson: z.any().optional(),
+  metaJson: z.record(z.string(), z.unknown()).optional(),
   expiresAt: z.date().optional(),
 });
 export type InsertDraft = z.infer<typeof insertDraftSchema>;
@@ -156,8 +162,8 @@ export const insertTestRunSchema = z.object({
   promptTitle: z.string().min(1, "Prompt title is required"),
   systemPrompt: z.string().nullable().optional(),
   userPrompt: z.string().min(1, "User prompt is required"),
-  inputVariables: z.any().optional(),
-  outputs: z.any().optional(),
+  inputVariables: z.record(z.string(), z.unknown()).optional(),
+  outputs: z.array(z.unknown()).optional(),
   ratingClarity: z.number().int().min(1).max(5).nullable().optional(),
   ratingCompleteness: z.number().int().min(1).max(5).nullable().optional(),
   ratingCorrectness: z.number().int().min(1).max(5).nullable().optional(),
