@@ -105,7 +105,7 @@ Defined in `shared/schema.ts` using Drizzle ORM:
 - **learn_categories** — name, slug (unique), description
 - **learn_posts** — title, slug (unique), category_id (FK), tags (text[]), summary, body (markdown), is_published
 - **drafts** — user_id (FK, optional), session_id, source, goal, output_format, sections_json (JSONB), compiled_prompt
-- **test_runs** — user_id (FK), draft_id (FK, optional), prompts, ratings (clarity/completeness/correctness/styleMatch 1-5), notes
+- **test_runs** — user_id (FK), draft_id (FK, optional), promptTitle, systemPrompt, userPrompt, ratings (clarity/completeness/correctness/styleMatch 1-5), notes
 
 ## Key Conventions
 
