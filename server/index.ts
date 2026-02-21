@@ -19,7 +19,10 @@ const PgSession = connectPgSimple(session);
 
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
-  log("WARNING: SESSION_SECRET not set. Using fallback for development only.");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET environment variable is required in production");
+  }
+  log("WARNING: Using development session secret - NOT FOR PRODUCTION");
 }
 
 app.use(
