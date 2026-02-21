@@ -220,6 +220,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!draft) {
         return res.status(404).json({ error: "Draft not found" });
       }
+
+      // Ownership check: match by userId or sessionId
+      const currentUserId = (req as any).session?.userId;
+      const currentSessionId = (req as any).sessionID;
+
+      const isOwner =
+        (draft.userId != null && draft.userId === currentUserId) ||
+        (draft.sessionId != null && draft.sessionId === currentSessionId);
+
+      if (!isOwner) {
+        return res.status(404).json({ error: "Draft not found" });
+      }
+
       return res.json(draft);
     } catch (err: unknown) {
       return res.status(500).json({ error: sanitizeError(err) });
