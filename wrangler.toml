@@ -1,23 +1,17 @@
-# Cloudflare Pages configuration for builder-prompt-engine
-# https://developers.cloudflare.com/pages/configuration/wrangler-configuration/
+# Cloudflare deployment configuration
+# This repository is built as a Pages-style static artifact (`dist`),
+# with an assets fallback so Wrangler-based uploads have an explicit target.
 
 name = "builder-prompt-engine"
-compatibility_date = "2024-09-23"
-pages_build_output_dir = "dist/public"
+compatibility_date = "2026-02-13"
+pages_build_output_dir = "dist"
 
-# Build configuration
-[build]
-command = "npm install && npm run build"
+[assets]
+directory = "./dist"
 
-# Environment variables for different deployment contexts
-# Note: Sensitive values should be set in Cloudflare Pages dashboard
+# Non-sensitive runtime variables can be declared here.
 [vars]
-# Add non-sensitive environment variables here
 
-# Production environment overrides
 [env.production]
-# Production-specific settings
 
-# Preview environment overrides (for PR deployments)
 [env.preview]
-# Preview-specific settings
