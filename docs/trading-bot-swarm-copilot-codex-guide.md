@@ -118,7 +118,7 @@ codex_instructions:
       allow_skip_heavy_checks: true
   async_resilience:
     use_async_await: true
-    require_timeout_and_abortsignal: true
+    require_timeout_and_abort_signal: true
     retry_policy:
       idempotent_only: true
       strategy: exponential_backoff_with_jitter
