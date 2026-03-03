@@ -3,74 +3,89 @@
 ## Purpose and scope
 This guide defines how GitHub Copilot and Codex should be configured and operated across the Trading Bot Swarm ecosystem (strategy services, execution engines, risk controls, data pipelines, APIs, and platform tooling).
 
-Primary goals:
-- Consistent engineering behavior across all repositories.
-- High code quality through mandatory validation gates.
-- Secure automation by default.
-- Reliable, observable delivery pipelines.
+Scope includes:
+- Local development behavior (prompting, suggestions, and edit constraints).
+- Repository-level quality controls (linting, tests, type checks, and code style).
+- Delivery controls (CI/CD gates, semantic release, and protected version tagging).
+- Operational safety (secrets handling, observability, and incident-aware automation).
 
-Copilot is treated as a **pair programmer**: helpful, fast, and bounded by strict repository rules. Codex is treated as an **automation agent**: task-complete, validation-first, and explicit about command outcomes.
+Copilot is treated as a **pair programmer** with strict behavioral rules: it should assist implementation while respecting repository conventions, safety boundaries, and validation requirements. Codex follows the same standards with stronger automation guardrails, including scope control and explicit evidence of checks performed.
 
----
+> Policy baseline: generated code is a draft until validated by project checks and human review.
 
 ## Configuration overview
 
-### 1) Testing and linting policy
-- For **code changes**, run lint, type check, and tests before merge.
-- For **documentation-only changes**, skip heavy code checks unless executable examples changed.
-- Align local commands with CI commands to avoid “works locally” drift.
-- Block merges if required quality gates fail.
+### Promptcrafting MCP topology inside Trading Bot Swarm
+Treat prompt engineering as an execution engine rather than ad hoc writing. In practice, Copilot and Codex should interact with a structured MCP topology that enforces deterministic quality loops:
+
+1. **Lint prompts** for structure and policy violations.
+2. **Generate controlled prompt variants**.
+3. **Route variants across multiple model backends**.
+4. **Evaluate outputs against a test harness**.
+5. **Analyze token/latency/cost tradeoffs**.
+6. **Rank by quality and economic efficiency**.
+7. **Persist best variants with metadata**.
+8. **Log telemetry and feed adaptive mutations**.
+
+Conceptually, this is a control loop:
+`input -> mutation -> evaluation -> scoring -> versioning -> telemetry -> iteration`.
+
+The architecture objective is not to "author prompts" manually, but to **train prompts** through repeatable feedback cycles.
+
+### Testing and linting
+- **Required for code changes**: run linting, type checks, and relevant tests when runtime behavior can change.
+- **Docs-only exception**: skip lint/test workflows for documentation-only changes unless documentation references executable examples that were modified.
+- Align local validation with CI quality gates to reduce drift.
+- Fail fast on broken checks; do not merge with unresolved quality issues.
 
 ### 2) Code style and maintainability
 - Use formatter + lint tooling consistently (e.g., Prettier + ESLint).
 - Follow existing repository patterns before introducing new abstractions.
 - Keep functions cohesive and side effects isolated.
-- Prefer explicit typing for cross-service contracts and event payloads.
+- Use domain-consistent naming (orders, fills, positions, risk limits, strategies).
 
-### 3) Async patterns and reliability
-- Standardize on `async/await` (avoid mixed promise styles).
-- Require timeout + cancellation for external IO.
-- Retry only idempotent operations with exponential backoff + jitter.
-- Add circuit-breaker and rate-limit handling for exchange-facing adapters.
+### Async patterns and resilience
+- Standardize on `async/await`; avoid mixed paradigms.
+- Require timeouts and cancellation for external calls.
+- Retry only idempotent operations, with exponential backoff + jitter.
+- Add circuit-breaker and rate-limit handling on exchange-facing integrations.
+- For model orchestration pipelines, enforce bounded concurrency to avoid burst failures.
 
-### 4) Security defaults
-- Never hardcode secrets, private keys, or credentials.
-- Validate/sanitize all external inputs (webhooks, APIs, uploaded files).
-- Apply least-privilege identities to automation and CI workflows.
-- Redact sensitive fields (tokens, account identifiers, PII) from logs.
+### Security defaults
+- No hardcoded credentials or tokens.
+- Validate/sanitize all external inputs (webhooks, APIs, file imports).
+- Apply least-privilege access for CI, bots, and service identities.
+- Redact secrets/PII in logs and error messages.
 
-### 5) Logging and observability
-- Use structured logs with correlation/request IDs.
-- Emit domain metrics: order latency, reject rate, fill ratio, risk trigger frequency.
-- Trace critical paths across orchestration, execution, and data ingestion.
-- Define actionable alerts (error budgets, stale feeds, abnormal reject spikes).
+### Logging and observability
+- Emit structured logs with request/correlation IDs.
+- Track key metrics: order latency, fill ratio, reject/error rate, risk-trigger frequency.
+- Instrument traces across API gateway, strategy orchestration, and exchange adapters.
+- Define and tune alert thresholds for reliability and trading safety events.
 
-### 6) CI/CD integration
-- Required jobs: lint, typecheck, test, and security scan.
-- Use deterministic installs (lockfiles, pinned runtime versions).
-- Limit workflow permissions to the minimum needed.
-- Rotate secrets and enforce protected environments for deployment.
-- Select **one Cloudflare deployment model per app**:
-  - **Workers model**: deploy via Wrangler in CI with explicit worker entrypoint.
-  - **Pages model**: let Cloudflare Pages handle build artifact deployment; avoid invoking Worker deploy commands.
+### CI/CD integration
+- Quality gates: lint, type check, tests, and security scanning.
+- Require all mandatory checks before merge.
+- Keep pipelines deterministic with pinned versions and lockfiles.
+- Rotate secrets and minimize workflow permissions.
 
-### 7) Version control standards
-- Conventional commits for clear intent and release automation.
-- Protected branches + mandatory reviews.
+### Version control
+- Use conventional commits and semantic versioning.
+- Require PR reviews and protected branches.
 - Prefer signed commits/tags for provenance.
-- Release tags should be generated by CI only after passing gates.
-
----
+- Ensure release tags are generated from CI after successful gates.
+- Keep PRs focused and small enough for risk-aware review (especially for order routing and risk modules).
 
 ## Custom instruction behavior for Codex and Copilot
 
-### Example rules (shared baseline)
-1. Do not bypass failing tests/lint for code changes.
-2. Keep scope tightly aligned to the requested task.
-3. When requirements are ambiguous, state assumptions or request clarification.
-4. Avoid adding dependencies without explicit rationale.
-5. Provide a concise change summary and validation evidence.
-6. Apply docs-only optimization by skipping non-required heavy checks.
+### Example behavioral rules
+1. Never bypass failing lint/tests for code changes.
+2. Keep changes tightly scoped to the requested outcome.
+3. Request clarification when requirements are ambiguous or contradictory.
+4. Avoid introducing new dependencies without explicit approval and rationale.
+5. Include a concise change summary plus validation evidence.
+6. Apply docs-only optimization: skip heavy checks when only documentation changed.
+7. Prefer secure defaults over convenience when suggesting API/client code.
 
 ### Conceptual YAML: Copilot custom instructions
 ```yaml
@@ -87,9 +102,11 @@ copilot_instructions:
     no_hidden_side_effects: true
   quality_rules:
     for_code_changes:
-      run_lint: required
-      run_typecheck: required
-      run_tests: required
+      run_lint: true
+      run_typecheck: true
+      run_tests: true
+      block_if_any_fail: true
+      require_ci_green_before_merge: true
     for_docs_only_changes:
       run_lint: optional
       run_typecheck: optional
@@ -122,15 +139,37 @@ codex_instructions:
     retry_policy:
       idempotent_only: true
       strategy: exponential_backoff_with_jitter
-  security_defaults:
-    no_plaintext_credentials: true
-    least_privilege_tokens: true
-    dependency_review_required: true
-  observability_defaults:
-    structured_logs: true
-    correlation_ids: true
-    metrics_for_critical_paths: true
-    traces_for_external_calls: true
+
+  security:
+    no_hardcoded_secrets: true
+    validate_all_external_input: true
+    least_privilege_credentials: true
+    redact_sensitive_logs: true
+
+  observability:
+    structured_logging: true
+    include_correlation_ids: true
+    emit_metrics_for_critical_paths: true
+    trace_external_calls: true
+
+  promptcrafting_control_loop:
+    lint_before_generation: true
+    generate_variants:
+      strategy: controlled_mutation
+      default_count: 5
+    evaluate_across_models: true
+    multi_objective_ranking:
+      optimize:
+        - quality
+        - robustness
+        - cost
+    persist_best_variant: true
+    telemetry_feedback:
+      adapt_mutation_strategy: true
+      examples:
+        underspecified_output: increase_constraints
+        too_verbose: compress_and_clarify
+        cost_too_high: token_optimization
 ```
 
 ---
@@ -191,10 +230,10 @@ jobs:
 ---
 
 ## Best-practice workflow: semantic release and version tagging
-
-- Enforce conventional commits to keep changelogs deterministic.
-- Run release job only from protected `main` after quality gates.
-- Generate and publish tags/releases from CI to preserve provenance.
+- Enforce conventional commits for clean changelog generation.
+- Run release automation only on protected mainline branches.
+- Publish tags/releases only after successful quality gates.
+- Require signed, immutable tags for auditable rollbacks.
 
 ```yaml
 name: release
@@ -227,10 +266,10 @@ jobs:
 ---
 
 ## Best-practice workflow: security and dependency scanning
-
-- Use Dependabot or Renovate for dependency lifecycle automation.
-- Schedule recurring scans and allow manual execution.
-- Fail for high/critical issues and triage with defined SLAs.
+- Use Dependabot/Renovate for routine dependency updates.
+- Schedule security scans and allow manual runs.
+- Fail on high/critical vulnerabilities and triage with SLA targets.
+- Include secret scanning and supply-chain visibility (SBOM/provenance) where possible.
 
 ```yaml
 name: security-and-dependency-scan
@@ -255,6 +294,8 @@ jobs:
         run: npm audit --audit-level=high
       - name: Static analysis baseline
         run: npm run lint
+      - name: Secret scan (example)
+        run: echo "Integrate gitleaks/trufflehog in production workflows"
 ```
 
 ---
@@ -315,15 +356,15 @@ This rule should be encoded in repository docs and CI templates to avoid model m
 - Functional correctness and trading-risk alignment.
 - Security posture (validation, secret handling, permissions).
 - Observability completeness (logs, metrics, traces).
-- Performance and failure mode analysis.
-- Clarity, maintainability, and rollback readiness.
+- Performance impact and failure-mode handling.
+- Clarity and maintainability of implementation.
+- Prompt-system scoring rationale is explicit: reviewers can see whether change favors performance, robustness, elegance, or a weighted blend.
 
 ### Validation process
 - Required CI checks must pass.
-- At least one qualified reviewer approval (or CODEOWNER requirement).
-- Risky changes should include reproducible validation artifacts.
-
----
+- At least one approved review from a code owner or designated maintainer.
+- Validate risky changes with reproducible evidence (test output, benchmarks, or replay data).
+- For trading-critical paths, require evidence of failure-mode behavior (timeouts, retries, and safe fallback).
 
 ## Troubleshooting and optimization tips
 - **Flaky tests**: remove nondeterministic network/time dependencies, seed data deterministically.
@@ -342,6 +383,15 @@ This rule should be encoded in repository docs and CI templates to avoid model m
   - CI/CD pipeline behavior
   - Runtime/toolchain versions
   - Release governance
+
+## Scoring-function governance
+For trading automation, document scoring priorities per domain:
+
+- **Performance-first**: maximize latency/throughput outcomes for fast decision paths.
+- **Robustness-first**: maximize stable behavior under noisy data, API failures, and degraded dependencies.
+- **Elegance-first**: prefer concise prompts/code only after quality and safety thresholds pass.
+
+Require every major prompt-orchestration update to state which objective dominates and why. This prevents silent drift in optimization goals between teams.
 
 ---
 
