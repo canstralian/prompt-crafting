@@ -1,7 +1,7 @@
 # Trading Bot Swarm: GitHub Copilot + Codex Configuration Guide
 
 ## Purpose and scope
-This guide standardizes how GitHub Copilot and Codex are configured and used across the Trading Bot Swarm ecosystem (strategy services, execution engines, risk controls, data pipelines, and platform tooling). The objective is consistency, code quality, and secure automation.
+This guide defines how GitHub Copilot and Codex should be configured and operated across the Trading Bot Swarm ecosystem (strategy services, execution engines, risk controls, data pipelines, APIs, and platform tooling).
 
 Scope includes:
 - Local development behavior (prompting, suggestions, and edit constraints).
@@ -38,9 +38,9 @@ The architecture objective is not to "author prompts" manually, but to **train p
 - Align local validation with CI quality gates to reduce drift.
 - Fail fast on broken checks; do not merge with unresolved quality issues.
 
-### Code style and maintainability
-- Enforce formatting and lint rules (ESLint + Prettier or language-equivalent tooling).
-- Prefer explicit types/interfaces for cross-service contracts.
+### 2) Code style and maintainability
+- Use formatter + lint tooling consistently (e.g., Prettier + ESLint).
+- Follow existing repository patterns before introducing new abstractions.
 - Keep functions cohesive and side effects isolated.
 - Use domain-consistent naming (orders, fills, positions, risk limits, strategies).
 
@@ -87,34 +87,20 @@ The architecture objective is not to "author prompts" manually, but to **train p
 6. Apply docs-only optimization: skip heavy checks when only documentation changed.
 7. Prefer secure defaults over convenience when suggesting API/client code.
 
-### Full custom instructions (conceptual YAML)
+### Conceptual YAML: Copilot custom instructions
 ```yaml
-assistant_policy:
-  shared_principles:
-    pair_programming_mode: true
-    follow_repo_conventions: true
-    scope_control:
-      disallow_unrelated_refactors: true
-      keep_commits_atomic: true
-    ambiguity_handling:
-      ask_for_clarification_when_unclear: true
-      state_assumptions_explicitly: true
-
-  copilot:
-    role: in-editor_pair_programmer
-    behavior:
-      prefer_existing_patterns: true
-      avoid_dependency_surprises: true
-      generate_small_reviewable_suggestions: true
-
-  codex:
-    role: task_automation_agent
-    behavior:
-      execute_requested_changes_end_to_end: true
-      report_commands_and_results: true
-      include_validation_evidence: true
-
-  quality_gates:
+copilot_instructions:
+  role: pair_programmer
+  mission:
+    - accelerate implementation
+    - preserve repository consistency
+    - avoid risky speculative edits
+  coding_behavior:
+    prefer_existing_patterns: true
+    suggest_small_reviewable_diffs: true
+    avoid_unscoped_refactors: true
+    no_hidden_side_effects: true
+  quality_rules:
     for_code_changes:
       run_lint: true
       run_typecheck: true
@@ -122,16 +108,36 @@ assistant_policy:
       block_if_any_fail: true
       require_ci_green_before_merge: true
     for_docs_only_changes:
-      run_lint: false
-      run_typecheck: false
-      run_tests: false
-      require_spelling_or_link_check: optional
+      run_lint: optional
+      run_typecheck: optional
+      run_tests: optional
+  security_rules:
+    no_hardcoded_secrets: true
+    validate_external_inputs: true
+    sanitize_logs: true
+```
 
-  async_patterns:
+### Conceptual YAML: Codex custom instructions
+```yaml
+codex_instructions:
+  role: automation_agent
+  execution_behavior:
+    complete_requested_task_end_to_end: true
+    keep_changes_scoped: true
+    report_commands_and_results: true
+    include_validation_evidence: true
+  gating:
+    code_changes_require:
+      - lint
+      - typecheck
+      - tests
+    docs_only_changes:
+      allow_skip_heavy_checks: true
+  async_resilience:
     use_async_await: true
     require_timeout_and_abort_signal: true
-    retries:
-      only_idempotent_paths: true
+    retry_policy:
+      idempotent_only: true
       strategy: exponential_backoff_with_jitter
 
   security:
@@ -166,19 +172,21 @@ assistant_policy:
         cost_too_high: token_optimization
 ```
 
+---
+
 ## GitHub workflow example: lint + test automation
 
 ### Trigger conditions
-- Pull requests targeting `main`.
-- Pushes to `main`.
-- Ignore docs-only paths so quality gates focus on executable changes.
+- Run on pushes to `main`.
+- Run on pull requests targeting `main`.
+- Ignore docs-only paths for this workflow to reduce unnecessary CI load.
 
-### `quality-gate` job steps
+### Quality gate job steps
 1. Checkout repository.
-2. Setup runtime/toolchain.
-3. Install dependencies.
-4. Run linter.
-5. Run type check.
+2. Setup Node runtime.
+3. Install dependencies with lockfile fidelity.
+4. Run lint.
+5. Run typecheck.
 6. Run tests.
 
 ```yaml
@@ -199,20 +207,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
       - name: Install dependencies
         run: npm ci
+
       - name: Lint
         run: npm run lint
+
       - name: Type check
         run: npm run typecheck
+
       - name: Test
         run: npm test
 ```
+
+---
 
 ## Best-practice workflow: semantic release and version tagging
 - Enforce conventional commits for clean changelog generation.
@@ -248,6 +263,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+---
+
 ## Best-practice workflow: security and dependency scanning
 - Use Dependabot/Renovate for routine dependency updates.
 - Schedule security scans and allow manual runs.
@@ -275,22 +292,69 @@ jobs:
       - run: npm ci
       - name: Dependency audit
         run: npm audit --audit-level=high
-      - name: Static analysis
+      - name: Static analysis baseline
         run: npm run lint
       - name: Secret scan (example)
         run: echo "Integrate gitleaks/trufflehog in production workflows"
 ```
 
-## Contributor workflow and review standards
+---
+
+## Deployment architecture guardrails (Cloudflare)
+
+To prevent CI instability and deployment confusion, choose a single model intentionally:
+
+### A) Worker deployment model (Wrangler-controlled)
+Use this when the application runtime is a Cloudflare Worker.
+
+- Add `wrangler` to devDependencies.
+- Ensure `wrangler.toml` includes `main` and `compatibility_date`.
+- Deploy with `wrangler deploy` (or `wrangler versions upload <entrypoint>`).
+- If multiple environments exist, always provide `--env` explicitly.
+
+Conceptual `wrangler.toml`:
+
+```toml
+name = "trading-bot-worker"
+main = "src/index.ts"
+compatibility_date = "2024-05-15"
+```
+
+### B) Pages deployment model (artifact-controlled)
+Use this for static SPA/SSR build output hosted on Cloudflare Pages.
+
+- Configure build command and output directory in Pages.
+- Do **not** run `wrangler versions upload` for Pages-only deployments.
+- Do **not** require Worker `main` entrypoint when only static assets are deployed.
+
+Recommended Pages settings:
+
+- Build command: `bun run build` (or `npm run build`)
+- Output directory: `dist`
+
+### Common failure pattern and fix
+If CI runs `npx wrangler versions upload` and fails with:
+- `Missing entry-point to Worker script or to assets directory`
+
+Then either:
+1. switch to Worker model and set `main`, then deploy Worker code, or
+2. switch to Pages model and remove Wrangler Worker deploy commands from deploy step.
+
+This rule should be encoded in repository docs and CI templates to avoid model mixing.
+
+---
+
+## Contributor guidelines
 
 ### Proposing changes
-- Branch from `main` with a focused scope.
+- Branch from `main` with focused, minimal scope.
 - Use conventional commits.
-- Include tests for behavior changes; update fixtures/contracts where necessary.
+- Include tests for behavior changes.
+- Document risk assumptions for strategy/execution-impacting updates.
 
 ### Review criteria
-- Functional correctness and risk-control alignment.
-- Security posture (input validation, secret management, access boundaries).
+- Functional correctness and trading-risk alignment.
+- Security posture (validation, secret handling, permissions).
 - Observability completeness (logs, metrics, traces).
 - Performance impact and failure-mode handling.
 - Clarity and maintainability of implementation.
@@ -303,16 +367,22 @@ jobs:
 - For trading-critical paths, require evidence of failure-mode behavior (timeouts, retries, and safe fallback).
 
 ## Troubleshooting and optimization tips
-- **Flaky tests**: isolate network dependencies, seed deterministic data, and add retries only for known transient infrastructure failures.
-- **Slow CI**: cache dependencies/build artifacts and split lint/test jobs for parallel execution.
-- **High false-positive lint noise**: tighten rules gradually and use rule ownership per package.
-- **Rate-limit failures**: add adaptive backoff, queueing, and alerting on throttle metrics.
-- **Dependency drift**: pin toolchain versions, regenerate lockfiles in CI, and review update cadence.
+- **Flaky tests**: remove nondeterministic network/time dependencies, seed data deterministically.
+- **Slow CI**: cache dependencies, split independent jobs, parallelize test shards.
+- **Lint noise**: ratchet rules incrementally; assign ownership by package.
+- **Rate-limit errors**: add adaptive retry/jitter and queue buffering.
+- **Dependency drift**: pin runtime/tool versions and verify lockfile integrity in CI.
+
+---
 
 ## Maintenance schedule
 - Review this guide **quarterly**.
-- Update whenever coding standards, security policy, CI architecture, or runtime versions change.
-- Track updates in release notes and notify contributors of policy-impacting changes.
+- Update immediately when standards change for:
+  - Coding conventions
+  - Security baselines
+  - CI/CD pipeline behavior
+  - Runtime/toolchain versions
+  - Release governance
 
 ## Scoring-function governance
 For trading automation, document scoring priorities per domain:
@@ -324,4 +394,6 @@ For trading automation, document scoring priorities per domain:
 Require every major prompt-orchestration update to state which objective dominates and why. This prevents silent drift in optimization goals between teams.
 
 ---
-**Goal**: Standardize excellence and strengthen the reliability, performance, and safety of the Trading Bot Swarm ecosystem.
+
+## Closing note
+The goal of this guide is to standardize excellence across the Trading Bot Swarm so every contribution strengthens ecosystem reliability, performance, and safety.
