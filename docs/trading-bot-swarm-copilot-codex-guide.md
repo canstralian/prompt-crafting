@@ -276,7 +276,7 @@ Conceptual `wrangler.toml`:
 ```toml
 name = "trading-bot-worker"
 main = "src/index.ts"
-compatibility_date = "2026-02-13"
+compatibility_date = "2024-05-15"
 ```
 
 ### B) Pages deployment model (artifact-controlled)
