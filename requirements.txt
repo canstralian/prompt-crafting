@@ -17,7 +17,7 @@ httpx>=0.28.0
 # Development / linting
 black>=24.4.2
 isort>=5.13.2
-flake8>=7.1.0
+flake8>=7.3.0
 mypy>=1.13.0
 
 # Testing
