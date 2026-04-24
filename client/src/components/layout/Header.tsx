@@ -208,7 +208,7 @@ export function Header() {
             <Button
               variant="ghost"
               asChild
-              className="justify-start text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide"
+              className="justify-start text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide transition-colors duration-150"
             >
               <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                 Log in
