@@ -105,7 +105,7 @@ export function Header() {
             variant="ghost"
             size="sm"
             asChild
-            className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide transition-colors duration-150"
+            className="text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide transition-[color,background-color,box-shadow] duration-150"
           >
             <Link to="/auth">Log in</Link>
           </Button>
@@ -208,7 +208,7 @@ export function Header() {
             <Button
               variant="ghost"
               asChild
-              className="justify-start text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide transition-colors duration-150"
+              className="justify-start text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-lg font-medium tracking-wide transition-[color,background-color,box-shadow] duration-150"
             >
               <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                 Log in
