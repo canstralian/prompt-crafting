@@ -1,0 +1,6 @@
+interface:
+  display_name: "Prompt Crafting"
+  short_description: "Repo-specific patterns and workflows for prompt-crafting"
+  default_prompt: "Use the prompt-crafting repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
