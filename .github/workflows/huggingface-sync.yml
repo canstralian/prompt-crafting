@@ -52,7 +52,7 @@ jobs:
 
       - name: Fetch Hugging Face remote
         run: |
-          git fetch huggingface main || true
+          git fetch huggingface main
 
       - name: Push to Hugging Face Hub
         run: |
