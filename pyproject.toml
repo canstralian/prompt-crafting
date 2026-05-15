@@ -1,17 +1,1 @@
-[tool.black]
-line-length = 79
-target-version = ["py312"]
-
-[tool.isort]
-profile = "black"
-line_length = 79
-
-[tool.mypy]
-python_version = "3.12"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-testpaths = ["prompt_crafting/tests"]
+W3Rvb2wucnVmZl0KbGluZSA9IDEwMApzZWxlY3QgPSBbIkUiLCAiRiIsICJJIiwgIkIiLCAiVVAiXQoKW3Rvb2wucHl0ZXN0LmluaV9vcHRpb25zXQp0ZXN0cGF0aHMgPSBbInByb21wdF9jcmFmdGluZy90ZXN0cyJdCmFkZG9wdHMgPSAiLS1jb3Y9cHJvbXB0X2NyYWZ0aW5nIC0tY292LXJlcG9ydD14bWwiCg==
