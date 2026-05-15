@@ -1,0 +1,295 @@
+# Instincts generated from https://github.com/canstralian/prompt-crafting
+# Generated: 2026-05-15T07:24:35.669Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: prompt-crafting-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/canstralian/prompt-crafting
+---
+
+# Prompt Crafting Commit Length
+
+## Action
+
+Write moderate-length commit messages (~60 characters)
+
+## Evidence
+
+- Average commit message length: 60 chars
+- Based on 2 commits
+
+---
+id: prompt-crafting-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/canstralian/prompt-crafting
+---
+
+# Prompt Crafting Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: prompt-crafting-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/canstralian/prompt-crafting
+---
+
+# Prompt Crafting Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: prompt-crafting-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/canstralian/prompt-crafting
+---
+
+# Prompt Crafting Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: prompt-crafting-instinct-file-naming
+trigger: "When creating a new Python file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct File Naming
+
+## Action
+
+Name the file using camelCase
+
+## Evidence
+
+- Pattern in namingConventions.files: camelCase
+
+---
+id: prompt-crafting-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Function Naming
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern in namingConventions.functions: camelCase
+
+---
+id: prompt-crafting-instinct-class-naming
+trigger: "When defining a new class"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Class Naming
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern in namingConventions.classes: PascalCase
+
+---
+id: prompt-crafting-instinct-constant-naming
+trigger: "When defining a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Constant Naming
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern in namingConventions.constants: SCREAMING_SNAKE_CASE
+
+---
+id: prompt-crafting-instinct-import-style
+trigger: "When importing modules in Python files"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Import Style
+
+## Action
+
+Use relative imports
+
+## Evidence
+
+- Pattern in importStyle: relative
+
+---
+id: prompt-crafting-instinct-export-style
+trigger: "When exporting functions or classes"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in exportStyle: named
+
+---
+id: prompt-crafting-instinct-test-location
+trigger: "When adding new tests"
+confidence: 0.6
+domain: testing
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Test Location
+
+## Action
+
+Place test files in mixed locations (not strictly separated from source)
+
+## Evidence
+
+- Pattern in architecture.testLocation: mixed
+
+---
+id: prompt-crafting-instinct-git-commit-prefix-chore
+trigger: "When making a commit related to maintenance or quality"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Git Commit Prefix Chore
+
+## Action
+
+Prefix the commit message with 'chore'
+
+## Evidence
+
+- Seen in commit: chore(quality): apply Security OS CI/CD hardening baseline
+
+---
+id: prompt-crafting-instinct-git-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Git Commit Length
+
+## Action
+
+Keep the commit message around 60 characters on average
+
+## Evidence
+
+- Pattern in commits.averageLength: 60
+
+---
+id: prompt-crafting-instinct-git-commit-auto-generated-tests
+trigger: "When committing auto-generated unit tests"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Git Commit Auto Generated Tests
+
+## Action
+
+Use the prefix 'CodeRabbit Generated Unit Tests' in the commit message
+
+## Evidence
+
+- Seen in commit: CodeRabbit Generated Unit Tests: Add unit tests for PR changes
+
+---
+id: prompt-crafting-instinct-ci-workflow-location
+trigger: "When configuring CI workflows"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: canstralian/prompt-crafting
+---
+
+# Prompt Crafting Instinct Ci Workflow Location
+
+## Action
+
+Place workflow YAML files in the .github/workflows directory
+
+## Evidence
+
+- Pattern in architecture.configFiles: .github/workflows/ci.yml
+
