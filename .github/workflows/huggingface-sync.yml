@@ -1,4 +1,4 @@
-name: Two-Way Sync: GitHub ↔ Hugging Face Hub
+name: "Two-Way Sync: GitHub ↔ Hugging Face Hub"
 
 on:
   push:
@@ -46,7 +46,13 @@ jobs:
         run: |
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           git remote remove huggingface 2>/dev/null || true
-          git remote add huggingface "https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME}"
+          git remote add huggingface "https://huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME}"
+          AUTH_HEADER="AUTHORIZATION: basic $(printf '%s:%s' "${HF_USERNAME}" "${HF_TOKEN}" | base64 -w0)"
+          git config --local "http.https://huggingface.co/.extraheader" "${AUTH_HEADER}"
+
+      - name: Fetch Hugging Face remote
+        run: |
+          git fetch huggingface main || true
 
       - name: Push to Hugging Face Hub
         run: |
@@ -76,7 +82,9 @@ jobs:
         run: |
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           git remote remove huggingface 2>/dev/null || true
-          git remote add huggingface "https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME}"
+          git remote add huggingface "https://huggingface.co/spaces/${HF_USERNAME}/${REPO_NAME}"
+          AUTH_HEADER="AUTHORIZATION: basic $(printf '%s:%s' "${HF_USERNAME}" "${HF_TOKEN}" | base64 -w0)"
+          git config --local "http.https://huggingface.co/.extraheader" "${AUTH_HEADER}"
 
       - name: Fetch Hugging Face main
         run: |
@@ -85,7 +93,11 @@ jobs:
       - name: Merge Hugging Face into GitHub
         run: |
           git checkout main
-          git merge huggingface/main --no-edit --allow-unrelated-histories
+          if ! git merge huggingface/main --no-edit; then
+            echo "::error::Merge conflict between Hugging Face main and GitHub main — resolve manually and re-run."
+            git merge --abort || true
+            exit 1
+          fi
 
       - name: Push merged state to GitHub
         run: |
