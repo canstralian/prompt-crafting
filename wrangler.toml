@@ -2,16 +2,22 @@
 # This repository is built as a Pages-style static artifact (`dist`),
 # with an assets fallback so Wrangler-based uploads have an explicit target.
 
-name = "builder-prompt-engine"
-compatibility_date = "2024-05-15"
-pages_build_output_dir = "dist"
+name = "prompt-crafting"
+compatibility_date = "2025-01-01"  # update to your actual date
 
-[assets]
-directory = "./dist"
+# Pages-compatible build config
+# DO NOT use "assets" here — Pages doesn't support it
+# Assets/static files are handled via the dashboard build output dir setting
 
-# Non-sensitive runtime variables can be declared here.
 [vars]
-
-[env.production]
+# Add your top-level vars here
+# EXAMPLE_VAR = "value"
 
 [env.preview]
+# vars must be explicitly repeated here — they don't inherit from top level
+[env.preview.vars]
+# EXAMPLE_VAR = "value"
+
+[env.production]
+[env.production.vars]
+# EXAMPLE_VAR = "value"
