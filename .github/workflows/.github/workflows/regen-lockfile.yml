@@ -1,0 +1,26 @@
+name: Regenerate Lockfile
+on:
+  workflow_dispatch:
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Regenerate lockfile
+        run: |
+          rm package-lock.json
+          npm install
+
+      - name: Commit and push
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add package-lock.json
+          git commit -m "fix: regenerate lockfile with eslint@9"
+          git push
