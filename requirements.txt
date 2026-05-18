@@ -1,7 +1,7 @@
 # Core framework
 fastapi>=0.115.0
 uvicorn[standard]>=0.34.0
-pydantic>=2.10.0
+pydantic>=2.13.4
 
 # Async database
 sqlalchemy[asyncio]>=2.0.36
