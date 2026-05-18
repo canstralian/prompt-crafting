@@ -1,23 +1,11 @@
-# Cloudflare deployment configuration
-# This repository is built as a Pages-style static artifact (`dist`),
-# with an assets fallback so Wrangler-based uploads have an explicit target.
-
 name = "prompt-crafting"
-compatibility_date = "2025-01-01"  # update to your actual date
-
-# Pages-compatible build config
-# DO NOT use "assets" here — Pages doesn't support it
-# Assets/static files are handled via the dashboard build output dir setting
+compatibility_date = "2025-01-01"
 
 [vars]
-# Add your top-level vars here
-# EXAMPLE_VAR = "value"
 
 [env.preview]
-# vars must be explicitly repeated here — they don't inherit from top level
 [env.preview.vars]
-# EXAMPLE_VAR = "value"
 
 [env.production]
 [env.production.vars]
-# EXAMPLE_VAR = "value"
+
