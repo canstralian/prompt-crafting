@@ -329,7 +329,8 @@ Use this for static SPA/SSR build output hosted on Cloudflare Pages.
 
 Recommended Pages settings:
 
-- Build command: `bun run build` (or `npm run build`)
+- Build command: `npm run build`
+- Install command: `npm ci`
 - Output directory: `dist`
 
 ### Common failure pattern and fix
