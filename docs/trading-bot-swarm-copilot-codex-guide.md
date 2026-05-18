@@ -331,6 +331,7 @@ Recommended Pages settings:
 
 - Build command: `npm run build`
 - Install command: `npm ci`
+- Environment variable: `NODE_VERSION=20`
 - Output directory: `dist`
 
 ### Common failure pattern and fix
