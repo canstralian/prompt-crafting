@@ -15,7 +15,8 @@ For each step in `plan`, in order:
 
 | Reviewer | How to invoke |
 |---|---|
-| `semgrep` | If a `semgrep.yml` workflow exists, ensure it's triggered by `pull_request` and the PR has at least one commit; no manual action needed. Otherwise note `not wired`. |
+| audit | Run npm audit, cargo audit, or pip-audit via Bash depending on the lockfile type. |
+| semgrep | If a semgrep.yml workflow exists, ensure it's triggered by pull_request and the PR has at least one commit; no manual action needed. Otherwise note not wired. |
 | `codeql` | Same as Semgrep — confirm `codeql-analysis.yml` runs on PR. If not, do nothing and add to `skipped`. |
 | `coderabbit` | Post a comment on the PR: `@coderabbitai review`. Limit to files in the planned globs by mentioning them. |
 | `gemini` | Equivalent comment for the project's Gemini integration (e.g. `/gemini review`). If integration absent, skip. |
