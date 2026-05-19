@@ -13,7 +13,7 @@ tools: Read, Bash, mcp__github__pull_request_read, mcp__github__get_file_content
 ## What to do
 1. Get the list of changed files (`mcp__github__pull_request_read` for a PR; `git diff --name-only base...HEAD` for a local branch).
 2. For each file, assign exactly one class from this set:
-   `docs-only`, `workflow/CI`, `infra/IaC`, `runtime-python`, `runtime-ts-js`, `tests`, `shared-contracts`, `lockfiles`, `generated/vendored`, `binary/unsupported`, `secrets-adjacent`.
+   docs-only, workflow / CI, infra / IaC, runtime Python, runtime TS/JS, tests, shared contracts, lockfiles, generated / vendored, binary / unsupported, secrets-adjacent.
 3. Use glob precedence — earlier classes in the routing table win for ambiguous files. Specifically: `secrets-adjacent` and `generated/vendored` always override their containing directory's natural class.
 4. For each file also record: bytes changed, whether the file is new/deleted/renamed, and whether it sits in a security-sensitive directory (`server/middleware*`, `auth*`, `session*`).
 
