@@ -13,7 +13,7 @@ tools: Read, Bash, mcp__github__issue_read, mcp__github__pull_request_read, mcp_
 ## What to do
 1. Enumerate stated-intent artifacts in scope:
    - `README.md`, `docs/**/*.md`, `replit.md`, `CLAUDE.md`, `SECURITY.md`
-   - Contract files: `shared/schema.ts`, `schemas/**`, `openapi*.{yaml,json}`, Drizzle table definitions, Zod schemas
+   - Contract files: shared/schema.ts, schemas/**, openapi*.{yaml,json}, Drizzle table definitions, Zod schemas, schema.prisma, *.sql
    - Linked issues (via `mcp__github__issue_read`)
    - PR description (via `mcp__github__pull_request_read`)
 2. For each artifact, extract concrete, verifiable assertions. Skip vague aspirations ("we value quality").
