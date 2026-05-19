@@ -22,7 +22,7 @@ tools: Read, Bash, mcp__github__get_file_contents
    7. Re-push rule (only relevant if `previous_run` is supplied; otherwise schedule all)
    8. Order rule (cheap-and-fast first)
 3. Mark reviewers that aren't wired into this repo as `n/a` rather than scheduling them.
-4. Compute file-glob assignments per reviewer — third-party reviewers (CodeRabbit, Gemini) MUST NOT receive `secrets-adjacent` files even if other classes route them in.
+4. Compute file-glob assignments per reviewer — third-party reviewers (CodeRabbit, Gemini) MUST NOT receive secrets-adjacent files. Use explicit file lists or negative globs (e.g., !**/*secrets*) to enforce this.
 5. Assign cost class: `MINIMAL` (≤1 cheap reviewer), `LIGHT` (Claude lightweight only), `STANDARD` (2-3 reviewers, no human), `DEEP` (security/workflow involved or human added), `BLOCKED-ON-HUMAN` (secret-adjacent or breaking-API change).
 
 ## Output
