@@ -45,7 +45,7 @@ Classify every changed file into ONE class. Then union the reviewers for all cla
 | **lockfiles** | `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Cargo.lock`, `poetry.lock`, `uv.lock` | npm audit / cargo audit / equivalent | All AI reviewers (diff is unreadable; trust the audit) |
 | **generated / vendored** | `dist/**`, `build/**`, `coverage/**`, `node_modules/**`, `*.min.js`, `vendor/**` | nothing | Everything (these should not be in a PR — flag the inclusion as a finding) |
 | **binary / unsupported** | `*.png`, `*.jpg`, `*.pdf`, `*.zip`, `*.wasm`, `*.bin` | nothing | All AI reviewers |
-| **secrets-adjacent** | `.env*`, `*.pem`, `*.key`, `credentials*`, `*secrets*` | Secret scanner (e.g., `mcp__github__run_secret_scanning`), human | All other AI reviewers (do not echo content) |
+| **secrets-adjacent** | `.env*`, `*.pem`, `*.key`, `credentials*`, `*secrets*` | Secret scanner (e.g., `mcp__github__run_secret_scanning`), human | Exclude these files from third-party AI reviewer inputs (CodeRabbit, Gemini); other non-secret files in the same PR may still be reviewed per their own class rules. Do not echo file contents in any reviewer prompt. |
 
 ## Routing rules
 
@@ -62,7 +62,7 @@ Apply in order. First match wins per rule; rules accumulate per PR.
 
 ## Output format
 
-```
+```markdown
 # Reviewer Routing Plan — <PR ref or scope>
 
 ## Diff summary

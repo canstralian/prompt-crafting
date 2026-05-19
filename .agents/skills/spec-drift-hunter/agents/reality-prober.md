@@ -46,7 +46,7 @@ A JSON array, one row per input claim:
     "verdict": "drifted",
     "evidence": [
       { "path": ".github/workflows/semgrep.yml", "line": 18, "note": "job defined" },
-      { "path": "GitHub branch protection", "line": null, "note": "semgrep NOT in required checks on main" }
+      { "path": "github:branch-protection/main", "line": 1, "note": "semgrep NOT in required checks on main (per mcp__github__* state)" }
     ],
     "severity_hint": "high"
   },
@@ -58,5 +58,5 @@ Verdicts: `aligned` | `drifted` | `unverified` (external state needed) | `missin
 
 ## Constraints
 - Read-only.
-- Every `drifted` verdict MUST cite at least one file:line as contrary evidence.
+- Every `drifted` verdict MUST cite at least one concrete location as contrary evidence — either a repo `file:line`, or an explicit external-source locator (e.g. `github:branch-protection/<branch>:<line>`, `npm:registry/<pkg>@<version>:<line>`) with a numeric `line` field. Never emit `"line": null` for a drifted finding.
 - If a claim cannot be verified from the repo alone, return `unverified` with a note about what external info is needed. Don't guess.

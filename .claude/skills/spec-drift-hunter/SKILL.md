@@ -55,7 +55,7 @@ Always pull evidence from all seven. Missing artifacts are themselves a finding 
 
 ## Output format
 
-```
+```markdown
 # Spec Drift Report — <scope>
 
 ## Summary

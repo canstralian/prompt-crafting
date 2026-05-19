@@ -21,7 +21,7 @@ For a single PR, all three can run inline.
 
 - `mcp__github__pull_request_read`, `mcp__github__get_file_contents`, `mcp__github__list_branches` for diff inspection.
 - `Bash` + `git diff --name-only` when running locally.
-- `mcp__github__add_issue_comment` ONLY when the dispatcher stage needs to ping CodeRabbit / Gemini (those reviewers are typically invoked via PR comment). Never post commentary from the planner stages.
+- `mcp__github__add_issue_comment` is dispatcher-only. The dispatcher stage may use it to ping CodeRabbit / Gemini (typically invoked via PR comment) and to request explicit human-reviewer assignment when none is specified. Planner stages (`file-classifier`, `reviewer-router`) must never post commentary.
 
 ## Stop conditions
 

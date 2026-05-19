@@ -30,4 +30,4 @@ For a single-PR review, you can run the loop inline without delegation.
 - Every extracted claim has a verdict: aligned, drifted, or unverified.
 - Report rendered in the format specified in the main SKILL.md.
 
-Exit silently if the user later asks for fixes; the report is the deliverable.
+If the user later asks for fixes, do NOT exit silently and do NOT start patching. Reply with an explicit handoff: this skill is diagnostic-only — the deliverable is the report. Point them at the per-finding `Fix:` line and suggest a follow-up step (run `/review`, open a dedicated PR per fix, or hand off to a remediation agent). Then end your turn.

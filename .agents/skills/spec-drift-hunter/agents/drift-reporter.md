@@ -23,9 +23,9 @@ tools: Read
 4. Sort findings by severity descending, then by source path.
 5. Compute the verdict:
    - `BLOCKED` — any `critical`
-   - `MAJOR DRIFT` — 2+ `high` or any `critical` cluster
-   - `MINOR DRIFT` — 1 `high` or only `medium`/`low`
-   - `ALIGNED` — only `info` or empty
+   - `MAJOR DRIFT` — 2+ `high` (no `critical`)
+   - `MINOR DRIFT` — 1 `high`, or only `medium` / `low`
+   - `ALIGNED` — only `info`, or empty
 
 ## Output
 Render exactly the markdown format specified in `.claude/skills/spec-drift-hunter/SKILL.md` under "Output format". Do not invent additional sections. Do not include emojis. Every finding must show Claim, Reality, Why it matters, Fix — in that order.

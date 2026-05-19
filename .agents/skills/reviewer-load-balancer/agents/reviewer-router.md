@@ -23,7 +23,14 @@ tools: Read, Bash, mcp__github__get_file_contents
    8. Order rule (cheap-and-fast first)
 3. Mark reviewers that aren't wired into this repo as `n/a` rather than scheduling them.
 4. Compute file-glob assignments per reviewer — third-party reviewers (CodeRabbit, Gemini) MUST NOT receive secrets-adjacent files. Use explicit file lists or negative globs (e.g., !**/*secrets*) to enforce this.
-5. Assign cost class: `MINIMAL` (≤1 cheap reviewer), `LIGHT` (Claude lightweight only), `STANDARD` (2-3 reviewers, no human), `DEEP` (security/workflow involved or human added), `BLOCKED-ON-HUMAN` (secret-adjacent or breaking-API change).
+5. Assign cost class. The mapping is total and ordered — first match wins:
+   - `BLOCKED-ON-HUMAN` — any `secrets-adjacent` file present, OR `breaking_api_change_signal: true` from the classifier, OR `shared contracts` touched with a deletion/rename of an exported symbol.
+   - `DEEP` — any security/auth/workflow rule fired, OR a human reviewer is in the plan, OR the plan has 4 or more reviewers (regardless of why).
+   - `STANDARD` — 2 or 3 reviewers, no human, no security/workflow rule fired.
+   - `LIGHT` — exactly 1 reviewer and that reviewer is Claude in lightweight mode (tiny-diff rule fired).
+   - `MINIMAL` — 0 or 1 cheap reviewer (`semgrep`-only, `audit`-only, or empty plan).
+
+   If the classifier omits `breaking_api_change_signal` entirely, default it to `false` but flag the omission in the router's `notes` so the dispatcher can decide whether to escalate.
 
 ## Output
 ```json
