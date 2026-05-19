@@ -248,7 +248,7 @@ def _pkg_name_from_line(line: str) -> Optional[str]:
     if not line or line.startswith("#"):
         return None
     name = line.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0]
-    name = name.split(":")[0].split('"')[0].split("'")[0]
+    name = name.split(":")[0].strip().strip('"').strip("'")
     name = name.strip().strip(",").strip()
     if not name or any(c in name for c in (" ", "{", "}", "[", "]")):
         return None
