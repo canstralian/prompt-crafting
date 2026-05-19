@@ -19,7 +19,7 @@ For each claim, run the verification appropriate to its category:
 - If branch protection is implied, use `mcp__github__*` to confirm the check is required on the default branch.
 
 ### `type-safety`
-- `grep -rn` for bypass markers in the relevant tree: `# type: ignore`, `// @ts-ignore`, `// @ts-expect-error`, `: any`, `as any`, `// eslint-disable`, `mypy: ignore`, `strict: false`, `skipLibCheck: true`, `noImplicitAny: false`, `strictNullChecks: false`.
+- grep -rn for bypass markers in the relevant tree: # type: ignore, // @ts-ignore, // @ts-expect-error, : any, as any, // eslint-disable, // eslint-disable-next-line, mypy: ignore, strict: false, skipLibCheck: true, noImplicitAny: false, strictNullChecks: false.
 - Cross-reference `tsconfig*.json`, `mypy.ini`, `pyproject.toml`, `eslint.config.*`.
 
 ### `auth`
