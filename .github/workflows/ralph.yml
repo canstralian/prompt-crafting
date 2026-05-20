@@ -1,0 +1,131 @@
+name: Ralph
+
+# Three triggers:
+#   1. Scheduled — weekdays 08:00 AEST (= 22:00 UTC the prior day).
+#   2. pull_request — single-PR mode on opened/synchronize/reopened.
+#   3. workflow_dispatch — manual ad-hoc runs.
+#
+# The governance-gate job is the required status check that blocks
+# merges when Ralph reports BLOCK-tier risk for the PR head.
+
+on:
+  schedule:
+    # 0 22 * * 0-4 → Sun-Thu 22:00 UTC → Mon-Fri 08:00 AEST (UTC+10).
+    - cron: "0 22 * * 0-4"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Specific PR number to run against (optional)."
+        required: false
+        type: string
+      execute:
+        description: "Apply mutating actions (post comments, merge, label)."
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ralph-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  ralph:
+    name: Ralph pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RALPH_MEMORY: .github/ralph-memory/memory.jsonl
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restore memory cache
+        id: cache-memory
+        uses: actions/cache@v4
+        with:
+          path: .github/ralph-memory
+          key: ralph-memory-${{ github.repository_id }}-v1
+          restore-keys: |
+            ralph-memory-${{ github.repository_id }}-
+
+      - name: Verify audit chain (pre-run)
+        run: |
+          python .github/scripts/ralph_orchestrator.py \
+            --repo "${{ github.repository }}" \
+            --memory "$RALPH_MEMORY" \
+            --verify-chain
+
+      - name: Choose PRs to process
+        id: select
+        run: |
+          set -euo pipefail
+          MODE="${{ github.event_name }}"
+          if [ "$MODE" = "pull_request" ]; then
+            echo "pr=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "execute=false" >> "$GITHUB_OUTPUT"
+          elif [ "$MODE" = "workflow_dispatch" ]; then
+            echo "pr=${{ github.event.inputs.pr }}" >> "$GITHUB_OUTPUT"
+            echo "execute=${{ github.event.inputs.execute }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "pr=" >> "$GITHUB_OUTPUT"
+            echo "execute=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Ralph
+        id: ralph
+        run: |
+          set -euo pipefail
+          ARGS=(--repo "${{ github.repository }}" \
+                --memory "$RALPH_MEMORY" \
+                --sitrep-out "$GITHUB_STEP_SUMMARY")
+          if [ -n "${{ steps.select.outputs.pr }}" ]; then
+            ARGS+=(--pr "${{ steps.select.outputs.pr }}")
+          fi
+          if [ "${{ steps.select.outputs.execute }}" = "true" ]; then
+            ARGS+=(--execute)
+          fi
+          python .github/scripts/ralph_orchestrator.py "${ARGS[@]}"
+
+      - name: Save memory cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .github/ralph-memory
+          key: ralph-memory-${{ github.repository_id }}-v1-${{ github.run_id }}
+
+      - name: Upload memory artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ralph-memory-${{ github.run_id }}
+          path: .github/ralph-memory/memory.jsonl
+          if-no-files-found: warn
+          retention-days: 30
+
+  governance-gate:
+    # Required status check. Inherits ralph's exit code: a BLOCK-tier
+    # finding causes the ralph job to exit 1, which fails this job too.
+    name: governance-gate
+    runs-on: ubuntu-latest
+    needs: [ralph]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Gate result
+        run: |
+          echo "Ralph pipeline completed without BLOCK-tier findings."
